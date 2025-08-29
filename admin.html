@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            width: 200px;
+            height: 100vh;
+            background: #343a40;
+            color: white;
+            padding: 15px 10px;
+            position: fixed;
+        }
+
+            .sidebar button {
+                width: 100%;
+                margin: 8px 0;
+                font-size: 14px;
+            }
+
+        .content {
+            margin-left: 200px;
+            padding: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 20px;
+            padding: 20px;
+            font-weight: bold;
+        }
+
+        .stat-box {
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            padding: 25px 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+            .stat-box:hover {
+                transform: translateY(-3px);
+                box-shadow: 2px 4px 12px rgba(0,0,0,0.15);
+            }
+
+        small {
+            display: block;
+            margin-top: 5px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+        }
+
+        #deptCheckbox, #productCheckbox, #processCheckbox {
+            max-height: 180px; /* adjust height */
+            overflow-y: auto;
+            padding-right: 5px; /* optional, avoid scrollbar overlapping */
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <div class="sidebar">
+            <h5>Admin Panel</h5>
+            <button class="btn btn-light btn-sm" onclick="showSection('dashboard')">Dashboard</button>
+            <button class="btn btn-light btn-sm" onclick="showSection('addMaster')">Add Master</button>
+            <button class="btn btn-light btn-sm" onclick="showSection('addparty')">Add Party</button>
+            <button class="btn btn-light btn-sm" onclick="showSection('userManage')">User Manage</button>
+            <button class="btn btn-light btn-sm" onclick="showSection('viewBill')">View Bill</button>
+            <!-- ✅ New GST Bills Button -->
+            <button class="btn btn-light btn-sm" onclick="showSection('viewGSTBills'); loadGSTBills()">View GST Bills</button>
+            <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+
+        </div>
+
+
+        <!-- Main Content -->
+        <div class="content flex-grow-1">
+
+            <!-- Dashboard -->
+            <div id="dashboard">
+                <h4>Dashboard</h4>
+                <div class="row g-3">
+                    <div class="col-md-3"><div class="stat-box" id="totalBills">0</div><small>Total Bills</small></div>
+                    <div class="col-md-3"><div class="stat-box" id="totalAmount">₹0</div><small>Total Amount</small></div>
+                    <div class="col-md-3"><div class="stat-box" id="paidAmount">₹0</div><small>Paid</small></div>
+                    <div class="col-md-3"><div class="stat-box" id="unpaidAmount">₹0</div><small>Unpaid</small></div>
+                </div>
+                <div class="mt-3"><button class="btn btn-primary" onclick="refreshDashboard()">🔄 Refresh</button></div>
+                <h5 class="mt-4">Department Wise Totals</h5>
+                <div class="row g-3" id="dashboardSummary">
+                    <div class="col-md-3">
+                        <div class="stat-box" id="totalBills"></div>
+                        <small>Department Name</small> <!-- Bills count hatavi ne department name -->
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box" id="totalAmount">₹0</div>
+                        <small>Total Amount</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box" id="paidAmount">₹0</div>
+                        <small>Paid</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box" id="unpaidAmount">₹0</div>
+                        <small>Unpaid</small>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <!-- Add Master -->
+            <div id="addMaster" class="hidden">
+                <h4>Add Master</h4>
+
+                <!-- Forms -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <form id="deptForm" class="d-flex gap-2">
+                            <input type="text" id="deptName" class="form-control form-control-sm" placeholder="New Department" required>
+                            <button type="submit" class="btn btn-success btn-sm">Save</button>
+                        </form>
+                    </div>
+                    <div class="col-md-4">
+                        <form id="productForm" class="d-flex gap-2">
+                            <input type="text" id="productName" class="form-control form-control-sm" placeholder="New Product" required>
+                            <button type="submit" class="btn btn-success btn-sm">Save</button>
+                        </form>
+                    </div>
+                    <div class="col-md-4">
+                        <form id="processForm" class="d-flex gap-2">
+                            <input type="text" id="processName" class="form-control form-control-sm" placeholder="New Process" required>
+                            <button type="submit" class="btn btn-success btn-sm">Save</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Group Boxes -->
+                <div class="row">
+                    <div class="col-md-4">
+                        <fieldset class="border p-3 rounded">
+                            <legend class="float-none w-auto">Departments</legend>
+                            <div id="deptCheckbox"></div>
+                        </fieldset>
+                    </div>
+                    <div class="col-md-4">
+                        <fieldset class="border p-3 rounded">
+                            <legend class="float-none w-auto">Products</legend>
+                            <div id="productCheckbox"></div>
+                        </fieldset>
+                    </div>
+                    <div class="col-md-4">
+                        <fieldset class="border p-3 rounded">
+                            <legend class="float-none w-auto">Processes</legend>
+                            <div id="processCheckbox"></div>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <!-- Save Mapping Button -->
+                <div class="text-center mt-3">
+                    <button id="saveMapping" class="btn btn-primary btn-sm">Save Mapping</button>
+                </div>
+
+                <!-- DataGrid -->
+                <h4 class="mt-4">Saved Mappings</h4>
+                <table class="table table-bordered" id="mappingTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Department</th>
+                            <th>Product</th>
+                            <th>Process</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Add Party Section -->
+            <div id="addparty" class="content-section hidden">
+                <h4>Add Party</h4>
+                <form id="partyForm" class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <input type="text" id="partyName" class="form-control" placeholder="Party Name" required>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="partyContact" class="form-control" placeholder="Contact Number">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="partyAddress" class="form-control" placeholder="Address">
+                    </div>
+                    <div class="col-md-12 mt-2">
+                        <button type="submit" class="btn btn-success btn-sm">Add Party</button>
+                    </div>
+                </form>
+
+                <!-- Party List -->
+                <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Party Name</th>
+                            <th>Contact</th>
+                            <th>Address</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="partyTable"></tbody>
+                </table>
+            </div>
+
+
+            <!-- User Manage Section -->
+            <div id="userManage" class="hidden">
+                <h4>User Manage</h4>
+                <form id="userForm" class="row g-2 mb-3">
+                    <div class="col-md-3">
+                        <select id="userDept" class="form-control form-select form-select-sm" required>
+                            <option value="">Select Department</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3"><input type="text" id="fullName" class="form-control form-control-sm" placeholder="Full Name" required></div>
+                    <div class="col-md-3"><input type="text" id="username" class="form-control form-control-sm" placeholder="Username" required></div>
+                    <div class="col-md-3"><input type="password" id="password" class="form-control form-control-sm" placeholder="Password" required></div>
+                    <div class="col-md-2 mt-2">
+                        <button type="submit" class="btn btn-success btn-sm w-100">Save User</button>
+                    </div>
+                </form>
+
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr><th>Department</th><th>Full Name</th><th>Username</th><th>Password</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="userTable"></tbody>
+                </table>
+            </div>
+
+
+
+            <!-- View Bill -->
+            <div id="viewBill" class="hidden">
+                <h4>All Bills</h4>
+
+                <!-- Filters -->
+                <div class="row g-2 mb-3">
+                    <div class="col-md-2">
+                        <select id="filterMonth" class="form-control">
+                            <option value="">All Months</option>
+                            <option value="01">January</option>
+                            <option value="02">February</option>
+                            <option value="03">March</option>
+                            <option value="04">April</option>
+                            <option value="05">May</option>
+                            <option value="06">June</option>
+                            <option value="07">July</option>
+                            <option value="08">August</option>
+                            <option value="09">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select id="filterDepartment" class="form-control">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select id="filterParty" class="form-control">
+                            <option value="">All Parties</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select id="filterProduct" class="form-control">
+                            <option value="">All Products</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select id="filterStatus" class="form-control">
+                            <option value="">All Status</option>
+                            <option value="Paid">Paid</option>
+                            <option value="Unpaid">Unpaid</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" onclick="applyBillFilters()">Filter</button>
+                    </div>
+                    <!-- Refresh Button -->
+                    <div class="mb-2">
+                        <button class="btn btn-secondary" onclick="refreshBillTable()">🔄 Refresh</button>
+                    </div>
+
+                </div>
+
+                <!-- Table -->
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAllBills"></th>
+                            <th>Department</th>
+                            <th>Date</th>
+                            <th>Bill No</th>
+                            <th>Party</th>
+                            <th>Product</th>
+                            <th>PCS</th>
+                            <th>Rate</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Bill</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billTableBody"></tbody>
+                </table>
+                <button class="btn btn-success mt-2" onclick="convertToGST()">Convert to GST</button>
+                <!-- Modal for Bill Preview -->
+                <div class="modal fade" id="billModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Bill Preview</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <img id="billImage" src="" class="img-fluid" alt="Bill Image">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <!-- View GST Bills -->
+            <div id="viewGSTBills" class="hidden">
+                <h4>GST Bills</h4>
+
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Party Name</th>
+                            <th>Included Bills</th>
+                            <th>Sub Total</th>
+                            <th>GST (%)</th>
+                            <th>Grand Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gstBillTable"></tbody>
+                </table>
+            </div>
+
+
+
+
+
+
+        </div>
+    </div>
+
+    <script>
+        // Section switch
+        function showSection(id) {
+            document.querySelectorAll('.content > div').forEach(d => d.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        // Generic function to add item with Edit/Delete inside GroupBox
+        function addItemWithActions(formId, inputId, containerId, storageKey) {
+            const form = document.getElementById(formId);
+            const input = document.getElementById(inputId);
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                let value = input.value.trim();
+                if (!value) return;
+
+                let items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                if (items.includes(value)) { alert("⚠️ Already exists!"); return; }
+                items.push(value);
+                localStorage.setItem(storageKey, JSON.stringify(items));
+
+                renderGroupBox(containerId, storageKey);
+                input.value = "";
+            });
+        }
+
+        // Render GroupBox items with Edit/Delete buttons
+        function renderGroupBox(containerId, storageKey) {
+            const container = document.getElementById(containerId);
+            let items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            container.innerHTML = "";
+
+            items.forEach((item, index) => {
+                const div = document.createElement("div");
+                div.className = "form-check d-flex align-items-center justify-content-between mb-1";
+                div.innerHTML = `
+             <div>
+                 <input type="checkbox" class="form-check-input me-1" value="${item}" id="${containerId}_${index}">
+                 <label class="form-check-label" for="${containerId}_${index}">${item}</label>
+             </div>
+             <div>
+                 <button class="btn btn-sm btn-primary me-1" onclick="editGroupItem('${storageKey}',${index},'${containerId}')">Edit</button>
+                 <button class="btn btn-sm btn-danger" onclick="deleteGroupItem('${storageKey}',${index},'${containerId}')">Delete</button>
+             </div>`;
+                container.appendChild(div);
+            });
+        }
+
+        // Edit group item
+        function editGroupItem(storageKey, index, containerId) {
+            let items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            let newValue = prompt("Edit value:", items[index]);
+            if (newValue && !items.includes(newValue.trim())) {
+                items[index] = newValue.trim();
+                localStorage.setItem(storageKey, JSON.stringify(items));
+                renderGroupBox(containerId, storageKey);
+            } else if (items.includes(newValue.trim())) alert("⚠️ Already exists!");
+        }
+
+        // Delete group item
+        function deleteGroupItem(storageKey, index, containerId) {
+            if (confirm("Are you sure to delete?")) {
+                let items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                items.splice(index, 1);
+                localStorage.setItem(storageKey, JSON.stringify(items));
+                renderGroupBox(containerId, storageKey);
+            }
+        }
+
+        // Initialize GroupBoxes
+        addItemWithActions('deptForm', 'deptName', 'deptCheckbox', 'departments');
+        addItemWithActions('productForm', 'productName', 'productCheckbox', 'products');
+        addItemWithActions('processForm', 'processName', 'processCheckbox', 'processes');
+
+        // Save Mapping with Edit/Delete
+        document.getElementById('saveMapping').addEventListener('click', () => {
+            const getChecked = id => [...document.querySelectorAll(`#${id} input:checked`)].map(c => c.value).join(", ");
+
+            const dept = getChecked("deptCheckbox");
+            const product = getChecked("productCheckbox");
+            const process = getChecked("processCheckbox");
+
+            if (!dept || !product || !process) {
+                alert("⚠️ Please select Department, Product and Process");
+                return;
+            }
+
+            let mappings = JSON.parse(localStorage.getItem('mappings') || '[]');
+
+            // Check if we are editing
+            const editIndex = document.getElementById('saveMapping').dataset.editIndex;
+            if (editIndex != null) {
+                mappings[editIndex] = { dept, product, process };
+                delete document.getElementById('saveMapping').dataset.editIndex;
+            } else {
+                mappings.push({ dept, product, process });
+            }
+
+            localStorage.setItem('mappings', JSON.stringify(mappings));
+            loadMappings();
+
+            // Uncheck all after save
+            document.querySelectorAll('#deptCheckbox input,#productCheckbox input,#processCheckbox input').forEach(c => c.checked = false);
+        });
+
+        // Load Mappings
+        function loadMappings() {
+            let mappings = JSON.parse(localStorage.getItem('mappings') || '[]');
+            const tbody = document.querySelector("#mappingTable tbody");
+            tbody.innerHTML = '';
+            mappings.forEach((m, index) => {
+                tbody.innerHTML += `
+         <tr>
+             <td>${m.dept}</td>
+             <td>${m.product}</td>
+             <td>${m.process}</td>
+             <td>
+                 <button class="btn btn-sm btn-primary me-1" onclick="editMapping(${index})">Edit</button>
+                 <button class="btn btn-sm btn-danger" onclick="deleteMapping(${index})">Delete</button>
+             </td>
+         </tr>`;
+            });
+        }
+
+        // Edit Mapping
+        function editMapping(index) {
+            let mappings = JSON.parse(localStorage.getItem('mappings') || '[]');
+            const m = mappings[index];
+
+            document.querySelectorAll('#deptCheckbox input').forEach(c => c.checked = m.dept.split(", ").includes(c.value));
+            document.querySelectorAll('#productCheckbox input').forEach(c => c.checked = m.product.split(", ").includes(c.value));
+            document.querySelectorAll('#processCheckbox input').forEach(c => c.checked = m.process.split(", ").includes(c.value));
+
+            document.getElementById('saveMapping').dataset.editIndex = index;
+        }
+
+        // Delete Mapping
+        function deleteMapping(index) {
+            if (confirm("Are you sure you want to delete this mapping?")) {
+                let mappings = JSON.parse(localStorage.getItem('mappings') || '[]');
+                mappings.splice(index, 1);
+                localStorage.setItem('mappings', JSON.stringify(mappings));
+                loadMappings();
+            }
+        }
+
+        // Dept mapping for user
+        function getDeptMapping(dept) {
+            let mappings = JSON.parse(localStorage.getItem('mappings') || '[]');
+            let related = mappings.filter(m => m.dept.includes(dept));
+            return {
+                products: [...new Set(related.map(m => m.product).join(", ").split(", ").filter(Boolean))],
+                processes: [...new Set(related.map(m => m.process).join(", ").split(", ").filter(Boolean))]
+            };
+        }
+
+        // Dashboard
+        // Dashboard
+        function refreshDashboard() {
+            let bills = JSON.parse(localStorage.getItem('bills') || '[]');
+
+            // Overall totals
+            let total = 0, paid = 0, unpaid = 0;
+            bills.forEach(b => {
+                let amt = parseFloat(b.total) || 0;
+                total += amt;
+                if (b.status === "Paid") paid += amt; else unpaid += amt;
+            });
+            document.getElementById('totalBills').innerText = bills.length;
+            document.getElementById('totalAmount').innerText = "₹" + total;
+            document.getElementById('paidAmount').innerText = "₹" + paid;
+            document.getElementById('unpaidAmount').innerText = "₹" + unpaid;
+
+            // Department-wise totals
+            let departments = JSON.parse(localStorage.getItem('departments') || '[]');
+            const summaryDiv = document.getElementById('dashboardSummary');
+            summaryDiv.innerHTML = ""; // Clear old summary
+
+            departments.forEach(dept => {
+                let deptBills = bills.filter(b => b.dept === dept);
+                let deptTotal = deptBills.reduce((sum, b) => sum + (parseFloat(b.total) || 0), 0);
+                let deptPaid = deptBills.filter(b => b.status === "Paid").reduce((sum, b) => sum + (parseFloat(b.total) || 0), 0);
+                let deptUnpaid = deptBills.filter(b => b.status !== "Paid").reduce((sum, b) => sum + (parseFloat(b.total) || 0), 0);
+                let deptCount = deptBills.length;
+
+                // Create stat boxes dynamically
+                summaryDiv.innerHTML += `
+<div class="col-md-3">
+        <div class="stat-box">${dept}</div>  <!-- Department name only -->
+</div>
+<div class="col-md-3">
+        <div class="stat-box">₹${deptTotal}</div>
+</div>
+<div class="col-md-3">
+        <div class="stat-box">₹${deptPaid}</div>
+</div>
+<div class="col-md-3">
+        <div class="stat-box">₹${deptUnpaid}</div>
+</div>
+`;
+
+
+
+
+            });
+        }
+
+
+        // ================== PARTY MANAGEMENT ==================
+        let partyList = JSON.parse(localStorage.getItem("partyList")) || [];
+
+        function renderPartyTable() {
+            let table = document.getElementById("partyTable");
+            table.innerHTML = "";
+            partyList.forEach((p, index) => {
+                let row = `<tr>
+             <td>${index + 1}</td>
+             <td>${p.name}</td>
+             <td>${p.contact}</td>
+             <td>${p.address}</td>
+             <td>
+                 <button class="btn btn-warning btn-sm" onclick="editParty(${index})">Edit</button>
+                 <button class="btn btn-danger btn-sm" onclick="deleteParty(${index})">Delete</button>
+             </td>
+         </tr>`;
+                table.innerHTML += row;
+            });
+        }
+
+        document.getElementById("partyForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            let name = document.getElementById("partyName").value.trim();
+            let contact = document.getElementById("partyContact").value.trim();
+            let address = document.getElementById("partyAddress").value.trim();
+
+            if (!name) return alert("⚠️ Party Name required!");
+
+            partyList = JSON.parse(localStorage.getItem("partyList")) || [];
+            partyList.push({ name, contact, address });
+            localStorage.setItem("partyList", JSON.stringify(partyList));
+            renderPartyTable();
+            this.reset();
+        });
+
+        function deleteParty(index) {
+            if (confirm("Are you sure you want to delete this party?")) {
+                partyList.splice(index, 1);
+                localStorage.setItem("partyList", JSON.stringify(partyList));
+                renderPartyTable();
+            }
+        }
+
+        function editParty(index) {
+            let p = partyList[index];
+            document.getElementById("partyName").value = p.name;
+            document.getElementById("partyContact").value = p.contact;
+            document.getElementById("partyAddress").value = p.address;
+
+            partyList = JSON.parse(localStorage.getItem("partyList")) || [];
+            partyList.splice(index, 1);
+            localStorage.setItem("partyList", JSON.stringify(partyList));
+            renderPartyTable();
+        }
+
+        // Filter Dropdowns
+        function loadFilterDropdowns() {
+            // Departments
+            let depts = JSON.parse(localStorage.getItem("departments") || "[]");
+            let deptSel = document.getElementById("filterDepartment");
+            deptSel.innerHTML = '<option value="">All Departments</option>';
+            depts.forEach(d => deptSel.innerHTML += `<option value="${d}">${d}</option>`);
+
+            // Parties
+            let parties = JSON.parse(localStorage.getItem("partyList") || "[]").map(p => p.name);
+            let partySel = document.getElementById("filterParty");
+            partySel.innerHTML = '<option value="">All Parties</option>';
+            parties.forEach(p => partySel.innerHTML += `<option value="${p}">${p}</option>`);
+
+            // Products
+            let products = JSON.parse(localStorage.getItem("products") || "[]");
+            let prodSel = document.getElementById("filterProduct");
+            prodSel.innerHTML = '<option value="">All Products</option>';
+            products.forEach(p => prodSel.innerHTML += `<option value="${p}">${p}</option>`);
+        }
+
+
+        // Bills
+        let bills = JSON.parse(localStorage.getItem("bills")) || [];
+
+        function displayBills(data) {
+            const tbody = document.getElementById("billTableBody");
+            tbody.innerHTML = "";
+            data.forEach((bill, index) => {
+                const row = `<tr>
+            <td><input type="checkbox" class="billCheck" data-index="${index}"></td>
+            <td>${bill.dept}</td>
+            <td>${bill.date}</td>
+            <td>${bill.billNo}</td>
+            <td>${bill.party}</td>
+            <td>${bill.product}</td>
+            <td>${bill.pcs}</td>
+            <td>${bill.rate}</td>
+            <td>${bill.total}</td>
+            <td>${bill.status}</td>
+            <td>
+                ${bill.photo
+                        ? `<button class="btn btn-sm btn-info" onclick="openBillModal('${bill.photo}')">View Bill</button>`
+                        : `<span class="text-muted">No File</span>`}
+            </td>
+        </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function openBillModal(photoUrl) {
+            document.getElementById("billImage").src = photoUrl;
+            var modal = new bootstrap.Modal(document.getElementById('billModal'));
+            modal.show();
+        }
+
+
+        // Admin View Bills
+        function loadAdminBills() {
+            let bills = JSON.parse(localStorage.getItem("bills") || '[]');
+
+            // Admin view ma badha bills show thay (no dept filter)
+            const tbody = document.getElementById('adminBillTableBody');
+            tbody.innerHTML = "";
+            bills.forEach(b => {
+                tbody.innerHTML += `<tr>
+                <td>${b.date}</td>
+                <td>${b.billNo}</td>
+                <td>${b.party}</td>
+                <td>${b.product}</td>
+                <td>${b.pcs}</td>
+                <td>${b.rate}</td>
+                <td>${b.total}</td>
+                <td>${b.status}</td>
+                <td>${b.dept || ""}</td>
+            </tr>`;
+            });
+        }
+        function updateBillStatus() {
+            let bills = JSON.parse(localStorage.getItem("bills") || "[]");
+            const tbody = document.getElementById("billTableBody");
+
+            bills.forEach((b, index) => {
+                // status column 10th <td>, index 9 (0-based)
+                const row = tbody.rows[index];
+                if (row) {
+                    row.cells[9].innerText = b.status || "Pending";
+
+                    // optionally disable checkbox if Paid GST
+                    const checkbox = row.cells[0].querySelector("input.billCheck");
+                    if (checkbox) {
+                        checkbox.disabled = b.status === "Paid GST";
+                    }
+                }
+            });
+        }
+
+
+
+        function applyBillFilters() {
+            let month = document.getElementById("filterMonth").value;
+            let department = document.getElementById("filterDepartment").value;
+            let party = document.getElementById("filterParty").value;
+            let product = document.getElementById("filterProduct").value;
+            let status = document.getElementById("filterStatus").value;
+
+            let filtered = bills.filter(bill => {
+                let billDate = new Date(bill.date);
+                let billMonth = String(billDate.getMonth() + 1).padStart(2, "0");
+
+                return (
+                    (month === "" || billMonth === month) &&
+                    (department === "" || bill.dept === department) &&
+                    (party === "" || bill.party === party) &&
+                    (product === "" || bill.product === product) &&
+                    (status === "" || bill.status === status)
+                );
+            });
+
+            displayBills(filtered);
+        }
+
+
+        // Users
+        document.getElementById('userForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+
+            let newUser = {
+                dept: document.getElementById('userDept').value,
+                fullName: document.getElementById('fullName').value.trim(),
+                username: document.getElementById('username').value.trim(),
+                password: document.getElementById('password').value.trim()
+            };
+
+            if (!newUser.dept || !newUser.fullName || !newUser.username || !newUser.password) {
+                alert("⚠️ Please fill all fields!");
+                return;
+            }
+
+            const editIndex = this.dataset.editIndex;
+            if (editIndex != undefined) {
+                users[editIndex] = newUser;
+                delete this.dataset.editIndex;
+            } else {
+                users.push(newUser);
+            }
+
+            localStorage.setItem('users', JSON.stringify(users));
+            this.reset();
+            loadUsers();
+        });
+
+        function loadUsers() {
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            const tbody = document.getElementById('userTable');
+            tbody.innerHTML = '';
+
+            users.forEach((u, index) => {
+                tbody.innerHTML += `
+            <tr>
+                <td>${u.dept}</td> <!-- department -->
+                <td>${u.fullName}</td>
+                <td>${u.username}</td>
+                <td>${u.password}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary me-1" onclick="editUser(${index})">Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteUser(${index})">Delete</button>
+                </td>
+            </tr>`;
+            });
+        }
+
+
+        function loadUserDepartments() {
+            let depts = JSON.parse(localStorage.getItem('departments') || '[]');
+            const select = document.getElementById('userDept');
+            select.innerHTML = '<option value="">Select Department</option>'; // default option
+            depts.forEach(d => {
+                select.innerHTML += `<option value="${d}">${d}</option>`;
+            });
+        }
+
+
+        function loadUserDeptItems(username) {
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            let user = users.find(u => u.username === username);
+            if (!user) return;
+
+            let mapping = getDeptMapping(user.dept);
+
+            const prodSelect = document.getElementById('productDropdown');
+            prodSelect.innerHTML = '<option value="">Select Product</option>';
+            mapping.products.forEach(p => prodSelect.innerHTML += `<option value="${p}">${p}</option>`);
+
+            const procSelect = document.getElementById('processDropdown');
+            procSelect.innerHTML = '<option value="">Select Process</option>';
+            mapping.processes.forEach(p => procSelect.innerHTML += `<option value="${p}">${p}</option>`);
+        }
+
+        function editUser(index) {
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            let u = users[index];
+
+            document.getElementById('userDept').value = u.dept;
+            document.getElementById('fullName').value = u.fullName;
+            document.getElementById('username').value = u.username;
+            document.getElementById('password').value = u.password;
+
+            document.getElementById('userForm').dataset.editIndex = index;
+        }
+
+        function deleteUser(index) {
+            if (confirm("Are you sure to delete this user?")) {
+                let users = JSON.parse(localStorage.getItem('users') || '[]');
+                users.splice(index, 1);
+                localStorage.setItem('users', JSON.stringify(users));
+                loadUsers();
+            }
+        }
+        function convertToGST() {
+            let bills = JSON.parse(localStorage.getItem("bills") || "[]");
+            let selectedCheckboxes = [...document.querySelectorAll(".billCheck:checked")];
+            let selectedIndexes = selectedCheckboxes.map(cb => +cb.dataset.index);
+
+            if (selectedIndexes.length === 0) {
+                alert("⚠️ Please select at least one bill!");
+                return;
+            }
+
+            // Filter out bills that are already marked as Paid
+            let billsToConvert = selectedIndexes
+                .map(i => bills[i])
+                .filter(b => b.status !== "Paid");
+
+            if (billsToConvert.length === 0) {
+                alert("⚠️ Selected bills are already Paid!");
+                return;
+            }
+
+            // Calculate GST Bill
+            let gstBill = {
+                gstBillNo: "GST-" + Date.now(),
+                date: new Date().toISOString().split("T")[0],
+                bills: billsToConvert,
+                subTotal: billsToConvert.reduce((sum, b) => sum + (parseFloat(b.total) || 0), 0),
+            };
+            gstBill.gstAmount = gstBill.subTotal * 0.18; // 18% GST
+            gstBill.grandTotal = gstBill.subTotal + gstBill.gstAmount;
+
+            // Save to localStorage for GST Bills
+            let gstBills = JSON.parse(localStorage.getItem("gstBills") || "[]");
+            gstBills.push(gstBill);
+            localStorage.setItem("gstBills", JSON.stringify(gstBills));
+
+            // Update original bills status to "Paid"
+            selectedIndexes.forEach(i => {
+                if (bills[i].status !== "Paid") {
+                    bills[i].status = "Paid";
+                }
+            });
+            localStorage.setItem("bills", JSON.stringify(bills));
+
+            // Clear selected checkboxes
+            selectedCheckboxes.forEach(cb => cb.checked = false);
+
+            // Update status in table without full reload
+            updateBillStatus(); // function to only update status column
+
+            // Show friendly success message
+            alert(`✅ GST created successfully!\nGST Bill No: ${gstBill.gstBillNo}\nTotal GST Amount: ₹${gstBill.gstAmount.toFixed(2)}\nGrand Total: ₹${gstBill.grandTotal.toFixed(2)}`);
+        }
+
+
+        // Function to update only status column and disable checkbox for Paid GST
+        function updateBillStatus() {
+            let bills = JSON.parse(localStorage.getItem("bills") || "[]");
+            const tbody = document.getElementById("billTableBody");
+
+            bills.forEach((b, index) => {
+                const row = tbody.rows[index];
+                if (row) {
+                    // 10th column = status
+                    row.cells[9].innerText = b.status || "Pending";
+
+                    // Disable checkbox if Paid GST
+                    const checkbox = row.cells[0].querySelector("input.billCheck");
+                    if (checkbox) {
+                        checkbox.disabled = b.status === "Paid GST";
+                    }
+                }
+            });
+        }
+
+
+        function loadGSTBills() {
+            let gstBills = JSON.parse(localStorage.getItem("gstBills") || "[]");
+            const tbody = document.getElementById("gstBillTable");
+            tbody.innerHTML = "";
+
+            gstBills.forEach((b, index) => {
+                tbody.innerHTML += `
+<tr>
+        <td>${b.date}</td>
+        <td>${b.bills.length > 0 ? b.bills[0].party : "-"}</td>
+        <td>${b.bills.map(x => x.billNo).join(", ")}</td>
+        <td>₹${b.subTotal.toFixed(2)}</td>
+        <td>
+            <input type="number" class="form-control form-control-sm"
+                   value="${b.gstRate || 18}" min="0"
+                   oninput="updateGST(${index}, this.value)">
+        </td>
+        <td id="grandTotal_${index}">
+            ₹${b.grandTotal ? b.grandTotal.toFixed(2) : (b.subTotal * 1.18).toFixed(2)}
+        </td>
+        <td>
+            <button class="btn btn-sm btn-danger" onclick="deleteGSTBill(${index})">Delete</button>
+        </td>
+</tr>`;
+            });
+        }
+
+
+        function updateGST(index, gstRate) {
+            let gstBills = JSON.parse(localStorage.getItem("gstBills") || "[]");
+            let bill = gstBills[index];
+
+            gstRate = parseFloat(gstRate) || 0;
+
+            bill.gstRate = gstRate;
+            bill.gstAmount = bill.subTotal * (gstRate / 100);
+            bill.grandTotal = bill.subTotal + bill.gstAmount;
+
+            // update UI
+            document.getElementById("grandTotal_" + index).innerText = "₹" + bill.grandTotal.toFixed(2);
+
+            // save back to localStorage
+            localStorage.setItem("gstBills", JSON.stringify(gstBills));
+        }
+        function deleteGSTBill(index) {
+            if (!confirm("⚠️ Are you sure you want to delete this GST Bill?")) return;
+
+            let gstBills = JSON.parse(localStorage.getItem("gstBills") || "[]");
+            let deletedBill = gstBills.splice(index, 1)[0]; // removed bill
+
+            // Revert status of original bills to "Unpaid"
+            let bills = JSON.parse(localStorage.getItem("bills") || "[]");
+            deletedBill.bills.forEach(bill => {
+                let billIndex = bills.findIndex(b => b.billNo === bill.billNo); // assuming unique billNo
+                if (billIndex !== -1) bills[billIndex].status = "Unpaid";
+            });
+            localStorage.setItem("bills", JSON.stringify(bills));
+
+            // Save updated GST bills
+            localStorage.setItem("gstBills", JSON.stringify(gstBills));
+
+            // Refresh GST table
+            loadGSTBills();
+
+            // Update main bills table status column and checkboxes
+            updateBillStatus();
+
+            alert("✅ GST Bill deleted successfully! Original bills status reverted.");
+        }
+        function logout() {
+            localStorage.removeItem("loggedUser");
+            window.location.href = "index.html";
+        }
+
+
+
+
+
+
+
+        // Window Init
+        window.onload = () => {
+            renderGroupBox('deptCheckbox', 'departments');
+            renderGroupBox('productCheckbox', 'products');
+            renderGroupBox('processCheckbox', 'processes');
+
+            loadUserDepartments();
+            loadUsers();
+            refreshDashboard();
+            loadMappings();
+            renderPartyTable();
+            loadFilterDropdowns();
+            displayBills(bills);
+        };
+    </script>
+
+</body>
+</html> 

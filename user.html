@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .sidebar {
+            width: 200px;
+            height: 100vh;
+            background: #343a40;
+            color: white;
+            padding: 15px 10px;
+            position: fixed;
+        }
+
+            .sidebar button {
+                width: 100%;
+                margin: 8px 0;
+                font-size: 14px;
+            }
+
+        .content {
+            margin-left: 200px;
+            padding: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 20px;
+            padding: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h5>User Panel</h5>
+            <button class="btn btn-light btn-sm" onclick="showSection('dashboard')">Dashboard</button>
+            <button class="btn btn-light btn-sm" onclick="showSection('addBill')">Add Bill</button>
+            <button class="btn btn-light btn-sm" onclick="showSection('viewBill')">View Bill</button>
+            <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+
+        </div>
+
+        <!-- Main Content -->
+        <div class="content flex-grow-1">
+
+            <!-- Dashboard -->
+            <div id="dashboard">
+                <h4>Dashboard</h4>
+
+                <!-- User & Dept Info -->
+                <div class="mb-4 text-center">
+                    <span id="deptNameLabel" style="
+        display: block;
+        font-weight: 700;
+        font-size: 42px;
+        color: #6a11cb;
+        text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    "></span>
+
+                    <span id="userNameLabel" style="
+        display: block;
+        font-size: 20px;
+        font-weight: 600;
+        color: #FF6B6B;
+        margin-top: 5px;
+        text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    "></span>
+                </div>
+
+
+                <div class="row g-3">
+                    <div class="col-md-3"><div class="stat-box" id="totalAmount">₹0</div><small>Total Kharch</small></div>
+                    <div class="col-md-3"><div class="stat-box" id="paidAmount">₹0</div><small>Paid</small></div>
+                    <div class="col-md-3"><div class="stat-box" id="unpaidAmount">₹0</div><small>Unpaid</small></div>
+                    <div class="col-md-3"><button class="btn btn-primary w-100" onclick="refreshDashboard()">🔄 Refresh</button></div>
+                </div>
+            </div>
+
+
+            <!-- Add Bill + View/Edit/Delete Bills -->
+            <div id="addBill" class="hidden">
+                <h4>Add Bill</h4>
+                <form id="billForm">
+                    <div class="row g-2">
+                        <div class="col-md-3"><input type="date" id="billDate" class="form-control" required></div>
+                        <div class="col-md-3"><input type="text" id="billNo" class="form-control" placeholder="Bill No" required></div>
+                        <div class="col-md-3">
+                            <select id="partyName" class="form-control" required>
+                                <option value="">Select Party</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="productName" class="form-control" required>
+                                <option value="">Select Product</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2 mt-2">
+                        <div class="col-md-2"><input type="number" id="pcs" class="form-control" placeholder="PCS" required></div>
+                        <div class="col-md-2"><input type="number" id="rate" class="form-control" placeholder="Rate" required></div>
+                        <div class="col-md-2"><input type="text" id="total" class="form-control" placeholder="Total Amount" readonly></div>
+                        <div class="col-md-3">
+                            <select id="status" class="form-control" required>
+                                <option value="Paid">Paid</option>
+                                <option value="Unpaid">Unpaid</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="file" id="billPhoto" class="form-control" accept="image/*,.pdf">
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-success w-100">Save</button>
+                        </div>
+                    </div>
+
+                </form>
+                <small id="msg" class="text-success"></small>
+
+                <hr>
+
+                <!-- Filters for Bills -->
+                <div class="row g-2 mb-3 mt-2">
+                    <div class="col-md-2">
+                        <select id="filterMonth" class="form-control">
+                            <option value="">All Months</option>
+                            <option value="01">January</option>
+                            <option value="02">February</option>
+                            <option value="03">March</option>
+                            <option value="04">April</option>
+                            <option value="05">May</option>
+                            <option value="06">June</option>
+                            <option value="07">July</option>
+                            <option value="08">August</option>
+                            <option value="09">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select id="filterYear" class="form-control">
+                            <option value="">All Years</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select id="filterParty" class="form-control">
+                            <option value="">All Parties</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select id="filterProduct" class="form-control">
+                            <option value="">All Products</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <select id="filterStatus" class="form-control">
+                            <option value="">All Status</option>
+                            <option value="Paid">Paid</option>
+                            <option value="Unpaid">Unpaid</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" onclick="applyBillFilters()">Filter</button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Bill No</th>
+                            <th>Party</th>
+                            <th>Product</th>
+                            <th>PCS</th>
+                            <th>Rate</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Bill</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billTableBody"></tbody>
+                </table>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="billModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Bill Preview</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img id="billImage" src="" class="img-fluid" alt="Bill Image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+    </div>
+
+    <script>
+        let editIndex = -1; // Track which bill is being edited
+
+        // Sections show/hide
+        function showSection(id) {
+            document.querySelectorAll('.content > div').forEach(d => d.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            if (id === 'viewBill') loadBills();
+            if (id === 'dashboard') refreshDashboard();
+        }
+
+        // Auto calculate total
+        document.getElementById('pcs').addEventListener('input', calcTotal);
+        document.getElementById('rate').addEventListener('input', calcTotal);
+        function calcTotal() {
+            const pcs = +document.getElementById('pcs').value || 0;
+            const rate = +document.getElementById('rate').value || 0;
+            document.getElementById('total').value = pcs * rate;
+        }
+
+        // Load company & product (from localStorage - added by admin)
+        function loadDropdowns() {
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (!currentUser) return;
+
+            // Party (all available)
+            let parties = JSON.parse(localStorage.getItem('partyList') || '[]');
+            let partySel = document.getElementById('partyName');
+            partySel.innerHTML = '<option value="">Select Party</option>';
+            parties.forEach(p => partySel.innerHTML += `<option value="${p.name}">${p.name}</option>`);
+
+            // Products (only mapped for dept)
+            let mapping = getDeptMapping(currentUser.dept);
+            let prodSel = document.getElementById('productName');
+            prodSel.innerHTML = '<option value="">Select Product</option>';
+            let products = mapping.products.length > 0 ? mapping.products : JSON.parse(localStorage.getItem("products") || "[]");
+            products.forEach(v => prodSel.innerHTML += `<option value="${v}">${v}</option>`);
+
+            // If Process dropdown needed
+            let procSel = document.getElementById('processName');
+            if (procSel) {
+                procSel.innerHTML = '<option value="">Select Process</option>';
+                mapping.processes.forEach(v => procSel.innerHTML += `<option value="${v}">${v}</option>`);
+            }
+        }
+
+
+        // Save or Update Bill
+        document.getElementById('billForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            let bills = JSON.parse(localStorage.getItem('bills') || '[]');
+            const fileInput = document.getElementById("billPhoto");
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    saveBill(reader.result); // save with photo
+                };
+                reader.readAsDataURL(file); // convert to base64
+            } else {
+                saveBill(""); // no photo uploaded
+            }
+        });
+
+        function saveBill(photoData) {
+            let bills = JSON.parse(localStorage.getItem('bills') || '[]');
+
+            const newBill = {
+                dept: JSON.parse(localStorage.getItem("currentUser"))?.dept || "",
+                date: document.getElementById("billDate").value,
+                billNo: document.getElementById("billNo").value,
+                party: document.getElementById("partyName").value,
+                product: document.getElementById("productName").value,
+                pcs: parseInt(document.getElementById("pcs").value),
+                rate: parseFloat(document.getElementById("rate").value),
+                total: parseFloat(document.getElementById("pcs").value) * parseFloat(document.getElementById("rate").value),
+                status: document.getElementById("status").value,
+                photo: photoData // store uploaded photo
+            };
+
+            if (editIndex >= 0) {
+                bills[editIndex] = newBill;
+                editIndex = -1;
+            } else {
+                bills.push(newBill);
+            }
+
+            localStorage.setItem('bills', JSON.stringify(bills));
+            document.getElementById("billForm").reset();
+            document.getElementById('total').value = 0;
+            document.getElementById('msg').innerText = "Bill saved successfully!";
+            displayBills(bills);
+            loadFilterDropdowns();
+        }
+
+        function editBill(index) {
+            let bills = JSON.parse(localStorage.getItem('bills') || '[]');
+            let bill = bills[index];
+            editIndex = index;
+
+            document.getElementById("billDate").value = bill.date;
+            document.getElementById("billNo").value = bill.billNo;
+            document.getElementById("partyName").value = bill.party;
+            document.getElementById("productName").value = bill.product;
+            document.getElementById("pcs").value = bill.pcs;
+            document.getElementById("rate").value = bill.rate;
+            document.getElementById("total").value = bill.total;
+            document.getElementById("status").value = bill.status;
+        }
+
+        // Delete bill
+        function deleteBill(index) {
+            if (confirm("Are you sure you want to delete this bill?")) {
+                let bills = JSON.parse(localStorage.getItem('bills') || '[]');
+                bills.splice(index, 1);
+                localStorage.setItem('bills', JSON.stringify(bills));
+                displayBills(bills);
+                refreshDashboard();
+            }
+        }
+
+        // Load bills in table
+        function loadBills() {
+            let bills = JSON.parse(localStorage.getItem('bills') || '[]');
+            const tbody = document.getElementById('billTableBody');
+            tbody.innerHTML = "";
+            bills.forEach(b => {
+                tbody.innerHTML += `<tr>
+    <td>${b.date}</td><td>${b.billNo}</td><td>${b.party}</td>
+    <td>${b.product}</td><td>${b.pcs}</td><td>${b.rate}</td>
+    <td>${b.total}</td><td>${b.status}</td>
+  </tr>`;
+            });
+        }
+        function displayUserDeptInfo() {
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (!currentUser) return;
+
+            // Example: currentUser = { fullName: "Ajay Chauhan", dept: "Accounts" }
+            document.getElementById("deptNameLabel").innerText = currentUser.dept;
+            document.getElementById("userNameLabel").innerText = currentUser.fullName;
+        }
+
+        // Refresh dashboard
+        function refreshDashboard() {
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            let bills = JSON.parse(localStorage.getItem('bills') || '[]');
+
+            // Filter only if dept exists in bill
+            if (currentUser && currentUser.dept) {
+                bills = bills.filter(b => b.dept ? b.dept === currentUser.dept : true);
+            }
+
+            let total = 0, paid = 0, unpaid = 0;
+            bills.forEach(b => {
+                let amt = parseFloat(b.total) || 0;
+                total += amt;
+                if (b.status === "Paid") paid += amt;
+                else unpaid += amt;
+            });
+
+            document.getElementById('totalAmount').innerText = "₹" + total;
+            document.getElementById('paidAmount').innerText = "₹" + paid;
+            document.getElementById('unpaidAmount').innerText = "₹" + unpaid;
+
+            if (currentUser) {
+                document.getElementById("deptNameLabel").innerText = currentUser.dept || "";
+                document.getElementById("userNameLabel").innerText = currentUser.fullName || "";
+            }
+        }
+
+        // Load dropdowns dynamically
+        function loadFilterDropdowns() {
+            let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            if (!currentUser) return;
+
+            // Party Filter
+            let parties = JSON.parse(localStorage.getItem('partyList') || '[]');
+            let partySel = document.getElementById('filterParty');
+            partySel.innerHTML = '<option value="">All Parties</option>';
+            parties.forEach(p => partySel.innerHTML += `<option value="${p.name}">${p.name}</option>`);
+
+            // Product Filter (Dept-wise only)
+            let mapping = getDeptMapping(currentUser.dept);
+            let prodSel = document.getElementById('filterProduct');
+            prodSel.innerHTML = '<option value="">All Products</option>';
+            mapping.products.forEach(v => prodSel.innerHTML += `<option value="${v}">${v}</option>`);
+        }
+
+
+        // Bills Data
+        let bills = JSON.parse(localStorage.getItem("bills")) || [];
+
+        // Display Bills
+        function displayBills(data) {
+            const tbody = document.getElementById("billTableBody");
+            tbody.innerHTML = "";
+            data.forEach((bill, index) => {
+                const row = `<tr>
+            <td>${bill.date}</td>
+            <td>${bill.billNo}</td>
+            <td>${bill.party}</td>
+            <td>${bill.product}</td>
+            <td>${bill.pcs}</td>
+            <td>${bill.rate}</td>
+            <td>${bill.total}</td>
+            <td>${bill.status}</td>
+            <td>
+                ${bill.photo
+                        ? `<button class="btn btn-sm btn-info" onclick="openBillModal('${bill.photo}')">View Bill</button>`
+                        : `<span class="text-muted">No File</span>`}
+            </td>
+            <td>
+                <button class="btn btn-sm btn-warning" onclick="editBill(${index})">Edit</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteBill(${index})">Delete</button>
+            </td>
+        </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function openBillModal(photoUrl) {
+            document.getElementById("billImage").src = photoUrl;
+            var modal = new bootstrap.Modal(document.getElementById('billModal'));
+            modal.show();
+        }
+
+
+
+
+
+        // Apply Filters
+        function applyBillFilters() {
+            let month = document.getElementById("filterMonth").value;
+            let year = document.getElementById("filterYear").value;
+            let party = document.getElementById("filterParty").value; // now Party
+            let product = document.getElementById("filterProduct").value;
+            let status = document.getElementById("filterStatus").value;
+
+            let filtered = bills.filter(bill => {
+                let billDate = new Date(bill.date);
+                let billMonth = String(billDate.getMonth() + 1).padStart(2, "0");
+                let billYear = String(billDate.getFullYear());
+
+                return (
+                    (month === "" || billMonth === month) &&
+                    (year === "" || billYear === year) &&
+                    (party === "" || bill.party === party) &&
+                    (product === "" || bill.product === product) &&
+                    (status === "" || bill.status === status)
+                );
+            });
+
+            displayBills(filtered);
+        }
+        function getDeptMapping(dept) {
+            let mappings = JSON.parse(localStorage.getItem("mappings") || "[]");
+            let related = mappings.filter(m => m.dept.includes(dept));
+            return {
+                products: [...new Set(related.map(m => m.product).join(",").split(",").map(p => p.trim()).filter(Boolean))],
+                processes: [...new Set(related.map(m => m.process).join(",").split(",").map(p => p.trim()).filter(Boolean))]
+            };
+        }
+        function logout() {
+            localStorage.removeItem("currentUser"); // 👈 loggedUser નહિ, currentUser remove કરો
+            window.location.href = "index.html";
+        }
+
+
+        // Init
+        window.onload = function () {
+            loadDropdowns();
+            refreshDashboard();
+            loadFilterDropdowns();
+            displayBills(bills);
+        };
+    </script>
+</body>
+</html>
