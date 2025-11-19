@@ -180,7 +180,8 @@
         let partyListArr = [];
         let productsArr = [];
         let mappingsArr = [];
-        let currentUser = JSON.parse(localStorage.getItem("currentUser")); // still from login
+        let currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+
 
         /* ====== DOM references (important for module scripts) ====== */
         const billForm = document.getElementById("billForm");
