@@ -103,19 +103,44 @@
 
             <!-- Dashboard -->
             <div id="dashboard">
-                <h4>Dashboard</h4>
-                <div class="row g-3">
-                    <div class="col-md-3"><div class="stat-box" id="totalBills">0</div><small>Total Bills</small></div>
-                    <div class="col-md-3"><div class="stat-box" id="totalAmount">₹0</div><small>Total Amount</small></div>
-                    <div class="col-md-3"><div class="stat-box" id="paidAmount">₹0</div><small>Paid</small></div>
-                    <div class="col-md-3"><div class="stat-box" id="unpaidAmount">₹0</div><small>Unpaid</small></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+
+                    <h4 style="margin:0;">Dashboard</h4>
+
+                    <!-- 🔹 Right Side Date-Time-Day -->
+                    <div id="dashDateTime"
+                         style="font-size:16px; font-weight:bold; color:black; text-align:right;">
+                    </div>
+
                 </div>
-                <div class="mt-3"><button class="btn btn-primary" onclick="refreshDashboard()">🔄 Refresh</button></div>
-                <h5 class="mt-4">Department Wise Totals</h5>
-                <div class="row g-3" id="dashboardSummary">
+
+
+                <!-- 🔍 Filter Panel -->
+                <div class="card p-3 mb-3 shadow-sm">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label for="fromDate" class="form-label">From Date</label>
+                            <input type="date" id="fromDate" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="toDate" class="form-label">To Date</label>
+                            <input type="date" id="toDate" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" onclick="filterDashboard()">📅 Filter</button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-secondary w-100" onclick="refreshDashboard()">🔄 Reset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 🔢 Summary Boxes -->
+                <h5 class="mt-4 mb-2">📊 All Over Total</h5>
+                <div class="row g-3">
                     <div class="col-md-3">
-                        <div class="stat-box" id="totalBills"></div>
-                        <small>Department Name</small> <!-- Bills count hatavi ne department name -->
+                        <div class="stat-box" id="totalBills">0</div>
+                        <small>Total Bills</small>
                     </div>
                     <div class="col-md-3">
                         <div class="stat-box" id="totalAmount">₹0</div>
@@ -131,7 +156,26 @@
                     </div>
                 </div>
 
-
+                <!-- 🔹 Department Wise Totals -->
+                <h5 class="mt-4">Department Wise Totals</h5>
+                <div class="row g-3" id="dashboardSummary">
+                    <div class="col-md-3">
+                        <div class="stat-box" id="deptName">Department Name</div>
+                        <small>Department</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box" id="deptTotalAmount">₹0</div>
+                        <small>Total Amount</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box" id="deptPaidAmount">₹0</div>
+                        <small>Paid</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box" id="deptUnpaidAmount">₹0</div>
+                        <small>Unpaid</small>
+                    </div>
+                </div>
             </div>
 
             <!-- Add Master -->
@@ -1236,6 +1280,28 @@
             localStorage.removeItem("loggedUser");
             window.location.href = "index.html";
         };
+        /* 🔹 Gujarati Day Names */
+        const gujDays = [
+            "રવિવાર", "સોમવાર", "મંગળવાર",
+            "બુધવાર", "ગુરુવાર", "શુક્રવાર", "શનિવાર"
+        ];
+
+        /* 🔹 Update Dashboard Top Date & Time */
+        function updateDashDateTime() {
+            const now = new Date();
+
+            let date = now.toLocaleDateString("en-IN");
+            let time = now.toLocaleTimeString("en-IN");
+            let day = gujDays[now.getDay()];
+
+            document.getElementById("dashDateTime").innerText =
+                `${date} | ${time} | ${day}`;
+        }
+
+        /* Auto update every second */
+        setInterval(updateDashDateTime, 1000);
+        updateDashDateTime();
+
 
 
 
