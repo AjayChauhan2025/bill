@@ -6,6 +6,8 @@
     <title>User Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
     <style>
         body {
             margin: 0;
@@ -14,7 +16,7 @@
 
         .sidebar {
             width: 300vh;
-            height: 80px;
+            height: 100px;
             background: #343a40;
             color: white;
             padding: 10px;
@@ -22,14 +24,14 @@
         }
 
             .sidebar button {
-                width: 120px; /* ⭐ button મોટો */
-                font-size: 16px; /* ⭐ લખાણ મોટું */
-                padding: 8px 12px; /* ⭐ height & width વધશે */
+                width: 90px;
+                height: 50px;
+                font-size: 14px;
+                font-weight: bold;
+                padding: 3px 6px;
                 margin: 0 auto;
-                transform: translateX(20px);
-                font-weight: bold; /* optional – વધુ સુંદર દેખાશે */
+                transform: translateX(20px); /* ⭐ center થી થોડું right */
             }
-
 
 
 
@@ -59,10 +61,10 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <h5>
-                <button class="btn btn-light btn-sm" onclick="showSection('dashboard')">Dashboard</button>
-                <button class="btn btn-light btn-sm" onclick="showSection('addBill')">Add Bill</button>
-                <button class="btn btn-light btn-sm" onclick="showSection('viewBill')">View Bill</button>
-                <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+                <button class="btn btn-light btn-sm" onclick="showSection('dashboard')">⚡Dashboard</button>
+                <button class="btn btn-light btn-sm" onclick="showSection('addBill')">🧾Add Bill</button>
+                <button class="btn btn-light btn-sm" onclick="showSection('viewBill')">📂View Bill</button>
+                <button class="btn btn-danger btn-sm" onclick="logout()">↪Logout</button>
             </h5>
 
             <div id="dateTimeBox"
