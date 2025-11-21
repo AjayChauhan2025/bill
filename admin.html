@@ -17,7 +17,7 @@
         }
 
         .sidebar {
-            width: 200px;
+            width: 160px;
             height: 100vh;
             background: #343a40;
             color: white;
@@ -477,7 +477,8 @@
             apiKey: "AIzaSyA1arlDFhHRjH4aACZUnDFGHjZcHNStZLg",
             authDomain: "bill-74883.firebaseapp.com",
             projectId: "bill-74883",
-            storageBucket: "bill-74883.appspot.com",
+            storageBucket: "bill-74883.firebasestorage.app",
+
             messagingSenderId: "1013144600935",
             appId: "1:1013144600935:web:4a6d8e11b2482e482aefc2",
             measurementId: "G-SX7Z75FG55"
@@ -998,13 +999,14 @@
             });
         }
 
-        function openBillModal(photoUrl) {
+        window.openBillModal = function (photoUrl) {
             document.getElementById("billImage").src = photoUrl;
             var modalEl = document.getElementById('billModal');
             if (!modalEl) return;
             var modal = new bootstrap.Modal(modalEl);
             modal.show();
-        }
+        };
+
 
         function loadAdminBills() {
             const tbody = document.getElementById('adminBillTableBody');
