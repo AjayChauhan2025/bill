@@ -232,7 +232,8 @@
         /* 🔹 Real-time listeners */
         onSnapshot(query(collection(db, "bills"), orderBy("createdAt")), snap => {
             billsArr = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            displayBills(billsArr);
+            displayBills(billsArr.filter(b => b.fullName === currentUser.fullName));
+
             refreshDashboard();
         });
         onSnapshot(query(collection(db, "parties")), snap => {
