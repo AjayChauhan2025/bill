@@ -80,6 +80,24 @@
             overflow-y: auto;
             padding-right: 5px; /* optional, avoid scrollbar overlapping */
         }
+        .a4-view {
+            width: 595px; /* A4 width */
+            min-height: 842px; /* A4 height */
+            padding: 20px;
+            margin: auto;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .a4-image {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            display: block;
+            border: 1px solid #999;
+        }
+
     </style>
 </head>
 <body>
@@ -93,6 +111,7 @@
             <button class="btn btn-light btn-sm" onclick="showSection('viewBill')">View Bill</button>
             <!-- ✅ New GST Bills Button -->
             <button class="btn btn-light btn-sm" onclick="showSection('viewGSTBills'); loadGSTBills()">View GST Bills</button>
+            <button class="btn btn-light btn-sm" onclick="showSection('searchBill')">Search Bill</button>
             <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
 
         </div>
@@ -115,8 +134,38 @@
                 </div>
 
 
-                <!-- 🔍 Filter Panel -->
+
                 <div class="card p-3 mb-3 shadow-sm">
+
+                    <!-- Radio Buttons Row -->
+                    <div class="row mb-3">
+                        <div class="col-md-12 d-flex gap-4">
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="dateFilter" id="filterAll" value="all" checked>
+                                <label class="form-check-label" for="filterAll">
+                                    All
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="dateFilter" id="filterThisMonth" value="thisMonth">
+                                <label class="form-check-label" for="filterThisMonth">
+                                    This Month
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="dateFilter" id="filterToday" value="today">
+                                <label class="form-check-label" for="filterToday">
+                                    Today
+                                </label>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Date Inputs -->
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3">
                             <label for="fromDate" class="form-label">From Date</label>
@@ -126,6 +175,7 @@
                             <label for="toDate" class="form-label">To Date</label>
                             <input type="date" id="toDate" class="form-control">
                         </div>
+
                         <div class="col-md-3">
                             <button class="btn btn-primary w-100" onclick="filterDashboard()">📅 Filter</button>
                         </div>
@@ -133,7 +183,9 @@
                             <button class="btn btn-secondary w-100" onclick="refreshDashboard()">🔄 Reset</button>
                         </div>
                     </div>
+
                 </div>
+
 
                 <!-- 🔢 Summary Boxes -->
                 <h5 class="mt-4 mb-2">📊 All Over Total</h5>
@@ -160,7 +212,8 @@
                 <h5 class="mt-4">Department Wise Totals</h5>
                 <div class="row g-3" id="dashboardSummary">
                     <div class="col-md-3">
-                        <div class="stat-box" id="deptName">Department Name</div>
+                        <div class="stat-box" id="dashboardDeptName">Department Name</div>
+
                         <small>Department</small>
                     </div>
                     <div class="col-md-3">
@@ -404,6 +457,88 @@
                     </div>
                 </div>
 
+                <!-- Edit Bill Modal -->
+                <div class="modal fade" id="editBillModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Bill</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <form id="editBillForm">
+                                    <input type="hidden" id="editBillId">
+
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <label>Date</label>
+                                            <input type="date" id="editBillDate" class="form-control">
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label>Bill No</label>
+                                            <input type="text" id="editBillNo" class="form-control" readonly>
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label>Department</label>
+                                            <input type="text" id="editBillDept" class="form-control">
+                                        </div>
+
+                                        <div class="col-md-6 mt-2">
+                                            <label>Party</label>
+                                            <input type="text" id="editBillParty" class="form-control">
+                                        </div>
+
+                                        <div class="col-md-6 mt-2">
+                                            <label>Product</label>
+                                            <input type="text" id="editBillProduct" class="form-control">
+                                        </div>
+
+                                        <div class="col-md-4 mt-2">
+                                            <label>PCS</label>
+                                            <input type="number" id="editBillPcs" class="form-control">
+                                        </div>
+
+                                        <div class="col-md-4 mt-2">
+                                            <label>Rate</label>
+                                            <input type="number" id="editBillRate" class="form-control">
+                                        </div>
+
+                                        <div class="col-md-4 mt-2">
+                                            <label>Total</label>
+                                            <input type="number" id="editBillTotal" class="form-control">
+                                        </div>
+
+                                        <div class="col-md-6 mt-2">
+                                            <label>Status</label>
+                                            <select id="editBillStatus" class="form-control">
+                                                <option value="Pending">Pending</option>
+                                                <option value="Paid">Paid</option>
+                                                <option value="Unpaid">Unpaid</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-6 mt-2">
+                                            <label>Remark</label>
+                                            <input type="text" id="editBillRemark" class="form-control">
+                                        </div>
+
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button class="btn btn-primary" onclick="saveBillEdits()">Save Changes</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
 
             </div>
             <!-- View GST Bills -->
@@ -425,6 +560,23 @@
                     <tbody id="gstBillTable"></tbody>
                 </table>
             </div>
+
+            <div id="searchBill" class="hidden" style="min-height: 500vh;">
+                <h4>Search Bill</h4>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <input type="text" id="searchBillNo" class="form-control" placeholder="Enter Bill Number">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" onclick="searchBill()">Search</button>
+                    </div>
+                </div>
+
+                <div id="searchResult"></div>
+            </div>
+
+
 
 
 
@@ -978,23 +1130,29 @@
             tbody.innerHTML = "";
             data.forEach((bill, index) => {
                 const row = `<tr>
-                <td><input type="checkbox" class="billCheck" data-index="${index}"></td>
-                <td>${bill.dept || ""}</td>
-                <td>${bill.date || ""}</td>
-                <td>${bill.billNo || ""}</td>
-                <td>${bill.party || ""}</td>
-                <td>${bill.product || ""}</td>
-                <td>${bill.pcs || ""}</td>
-                <td>${bill.rate || ""}</td>
-                <td>${bill.total || ""}</td>
-                <td>${bill.status || ""}</td>
-                <td>${bill.remark || ""}</td>
-                <td>
-                    ${bill.photo
-                        ? `<button class="btn btn-sm btn-info" onclick="openBillModal('${bill.photo}')">View Bill</button>`
+    <td><input type="checkbox" class="billCheck" data-index="${index}"></td>
+    <td>${bill.dept || ""}</td>
+    <td>${bill.date || ""}</td>
+    <td>${bill.billNo || ""}</td>
+    <td>${bill.party || ""}</td>
+    <td>${bill.product || ""}</td>
+    <td>${bill.pcs || ""}</td>
+    <td>${bill.rate || ""}</td>
+    <td>${bill.total || ""}</td>
+    <td>${bill.status || ""}</td>
+    <td>${bill.remark || ""}</td>
+    
+    <td>
+        ${bill.photo
+                        ? `<button class="btn btn-sm btn-info me-1" onclick="openBillModal('${bill.photo}')">View Bill</button>`
                         : `<span class="text-muted">No File</span>`}
-                </td>
-            </tr>`;
+
+        ${bill.id
+                        ? `<button class="btn btn-sm btn-warning" onclick="openEditBillModal('${bill.id}')">Edit</button>`
+                        : `<button class="btn btn-sm btn-warning" onclick="openEditBillModalByIndex(${index})">Edit</button>`}
+    </td>
+</tr>`;
+
                 tbody.innerHTML += row;
             });
         }
@@ -1042,28 +1200,10 @@
             });
         };
 
-        function applyBillFilters() {
-            let month = document.getElementById("filterMonth")?.value || "";
-            let department = document.getElementById("filterDepartment")?.value || "";
-            let party = document.getElementById("filterParty")?.value || "";
-            let product = document.getElementById("filterProduct")?.value || "";
-            let status = document.getElementById("filterStatus")?.value || "";
+        
 
-            let filtered = (billsArr || []).filter(bill => {
-                let billDate = bill.date ? new Date(bill.date) : null;
-                let billMonth = billDate ? String(billDate.getMonth() + 1).padStart(2, "0") : "";
 
-                return (
-                    (month === "" || billMonth === month) &&
-                    (department === "" || bill.dept === department) &&
-                    (party === "" || bill.party === party) &&
-                    (product === "" || bill.product === product) &&
-                    (status === "" || bill.status === status)
-                );
-            });
 
-            displayBills(filtered);
-        }
 
         /* ===========================
            Users: Save / Load / Edit / Delete -> Firestore 'users' collection
@@ -1272,6 +1412,106 @@
                 alert("❌ Error deleting GST bill.");
             }
         };
+        window.filterDashboard = function () {
+
+            if (!billsArr || billsArr.length === 0) {
+                loadDashboardFiltered([]);
+                return;
+            }
+
+            let filtered = [...billsArr];
+
+            const from = document.getElementById("fromDate").value;
+            const to = document.getElementById("toDate").value;
+            const filterType = document.querySelector("input[name='dateFilter']:checked").value;
+
+            const today = new Date().toISOString().split("T")[0];
+
+            // -----------------------------
+            // 1️⃣ RADIO FILTER
+            // -----------------------------
+            if (filterType === "today") {
+                filtered = filtered.filter(b => b.date === today);
+            }
+
+            else if (filterType === "thisMonth") {
+                let now = new Date();
+                let first = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+                let last = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split("T")[0];
+                filtered = filtered.filter(b => b.date >= first && b.date <= last);
+            }
+
+            // -----------------------------
+            // 2️⃣ FROM – TO DATE RANGE
+            // -----------------------------
+            if (from !== "") {
+                filtered = filtered.filter(b => b.date >= from);
+            }
+
+            if (to !== "") {
+                filtered = filtered.filter(b => b.date <= to);
+            }
+
+            // -----------------------------
+            // 3️⃣ APPLY FILTER RESULT
+            // -----------------------------
+            loadDashboardFiltered(filtered);
+        };
+
+        window.refreshDashboard = function () {
+            document.getElementById("fromDate").value = "";
+            document.getElementById("toDate").value = "";
+            document.getElementById("filterAll").checked = true;
+
+            loadDashboardFiltered(billsArr);
+        };
+
+
+        window.loadDashboardFiltered = function (data) {
+
+            // Total Bills
+            document.getElementById("totalBills").innerText = data.length;
+
+            let total = 0, paid = 0, unpaid = 0;
+
+            data.forEach(b => {
+                let amt = parseFloat(b.total) || 0;
+                total += amt;
+                if (b.status === "Paid") paid += amt;
+                else unpaid += amt;
+            });
+
+            document.getElementById("totalAmount").innerText = "₹" + total;
+            document.getElementById("paidAmount").innerText = "₹" + paid;
+            document.getElementById("unpaidAmount").innerText = "₹" + unpaid;
+
+            // ------------------------------
+            // Department Wise Summary
+            // ------------------------------
+            const summaryDiv = document.getElementById("dashboardSummary");
+            summaryDiv.innerHTML = "";
+
+            departmentsArr.forEach(d => {
+                let dept = d.name;
+                let deptBills = data.filter(b => b.dept === dept);
+
+                let deptTotal = deptBills.reduce((s, b) => s + (parseFloat(b.total) || 0), 0);
+                let deptPaid = deptBills.filter(b => b.status === "Paid")
+                    .reduce((s, b) => s + (parseFloat(b.total) || 0), 0);
+                let deptUnpaid = deptBills.filter(b => b.status !== "Paid")
+                    .reduce((s, b) => s + (parseFloat(b.total) || 0), 0);
+
+                summaryDiv.innerHTML += `
+        <div class="col-md-3"><div class="stat-box">${dept}</div></div>
+        <div class="col-md-3"><div class="stat-box">₹${deptTotal}</div></div>
+        <div class="col-md-3"><div class="stat-box">₹${deptPaid}</div></div>
+        <div class="col-md-3"><div class="stat-box">₹${deptUnpaid}</div></div>
+        `;
+            });
+        };
+
+
+
 
         /* ===========================
            Logout: clear local loggedUser reference (keeps same behavior)
@@ -1303,6 +1543,52 @@
         /* Auto update every second */
         setInterval(updateDashDateTime, 1000);
         updateDashDateTime();
+        window.applyBillFilters = function () {
+            let month = document.getElementById("filterMonth").value;
+            let dept = document.getElementById("filterDepartment").value;
+            let party = document.getElementById("filterParty").value;
+            let product = document.getElementById("filterProduct").value;
+            let status = document.getElementById("filterStatus").value;
+
+            let filtered = [...billsArr];
+
+            // Month filter
+            if (month !== "") {
+                filtered = filtered.filter(b => b.date && b.date.split("-")[1] === month);
+            }
+
+            // Department filter
+            if (dept !== "") {
+                filtered = filtered.filter(b => b.dept === dept);
+            }
+
+            // Party filter
+            if (party !== "") {
+                filtered = filtered.filter(b => b.party === party);
+            }
+
+            // Product filter
+            if (product !== "") {
+                filtered = filtered.filter(b => b.product === product);
+            }
+
+            // Status filter
+            if (status !== "") {
+                filtered = filtered.filter(b => b.status === status);
+            }
+
+            // Display filtered bills
+            displayBills(filtered);
+        };
+        window.refreshBillTable = function () {
+            document.getElementById("filterMonth").value = "";
+            document.getElementById("filterDepartment").value = "";
+            document.getElementById("filterParty").value = "";
+            document.getElementById("filterProduct").value = "";
+            document.getElementById("filterStatus").value = "";
+
+            displayBills(billsArr);
+        };
 
 
 
@@ -1336,6 +1622,107 @@
 </tr>`;
             });
         }
+        window.searchBill = function () {
+            let billNo = document.getElementById("searchBillNo").value.trim();
+            let resultDiv = document.getElementById("searchResult");
+
+            if (billNo === "") {
+                alert("Please enter Bill Number!");
+                return;
+            }
+
+            let bill = billsArr.find(b => b.billNo === billNo);
+
+            if (!bill) {
+                resultDiv.innerHTML = `
+            <div class="alert alert-danger">Bill Not Found!</div>
+        `;
+                return;
+            }
+
+            // Show Bill Photo
+            resultDiv.innerHTML = `
+    <div class="a4-view">
+        <h5>Bill No: ${bill.billNo}</h5>
+        <p><strong>Party:</strong> ${bill.party}</p>
+        <p><strong>Department:</strong> ${bill.dept}</p>
+        <p><strong>Date:</strong> ${bill.date}</p>
+
+        ${bill.photo
+                    ? `<img src="${bill.photo}" class="a4-image">`
+                    : `<div class="alert alert-warning mt-2">No Bill Image Uploaded</div>`
+                }
+    </div>
+`;
+
+        };
+        // Open edit modal by bill document ID
+        window.openEditBillModal = function (billId) {
+            const bill = billsArr.find(b => b.id === billId);
+            if (!bill) return alert("Bill not found");
+
+            populateEditModal(bill);
+            const modal = new bootstrap.Modal(document.getElementById("editBillModal"));
+            modal.show();
+        };
+
+        // Open edit modal by array index (fallback)
+        window.openEditBillModalByIndex = function (index) {
+            const bill = billsArr[index];
+            if (!bill) return alert("Bill not found");
+
+            populateEditModal(bill);
+            const modal = new bootstrap.Modal(document.getElementById("editBillModal"));
+            modal.show();
+        };
+
+        // Fill modal fields
+        function populateEditModal(bill) {
+            document.getElementById("editBillId").value = bill.id || "";
+            document.getElementById("editBillDate").value = bill.date || "";
+            document.getElementById("editBillNo").value = bill.billNo || "";
+            document.getElementById("editBillDept").value = bill.dept || "";
+            document.getElementById("editBillParty").value = bill.party || "";
+            document.getElementById("editBillProduct").value = bill.product || "";
+            document.getElementById("editBillPcs").value = bill.pcs || "";
+            document.getElementById("editBillRate").value = bill.rate || "";
+            document.getElementById("editBillTotal").value = bill.total || "";
+            document.getElementById("editBillStatus").value = bill.status || "Pending";
+            document.getElementById("editBillRemark").value = bill.remark || "";
+        }
+
+        // Save edited bill
+        window.saveBillEdits = async function () {
+            const id = document.getElementById("editBillId").value;
+            if (!id) return alert("Invalid Bill ID!");
+
+            const updated = {
+                date: document.getElementById("editBillDate").value,
+                billNo: document.getElementById("editBillNo").value,
+                dept: document.getElementById("editBillDept").value,
+                party: document.getElementById("editBillParty").value,
+                product: document.getElementById("editBillProduct").value,
+                pcs: document.getElementById("editBillPcs").value,
+                rate: document.getElementById("editBillRate").value,
+                total: document.getElementById("editBillTotal").value,
+                status: document.getElementById("editBillStatus").value,
+                remark: document.getElementById("editBillRemark").value
+            };
+
+            try {
+                await setDoc(doc(db, "bills", id), updated, { merge: true });
+                alert("Bill Updated Successfully!");
+
+                // close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById("editBillModal"));
+                modal.hide();
+
+            } catch (err) {
+                console.error(err);
+                alert("Error updating bill");
+            }
+        };
+
 
         /* ===========================
            Window onload equivalent: initialize the real-time listeners and initial render
@@ -1358,6 +1745,7 @@
             renderPartyTable();
             loadFilterDropdowns();
             displayBills(billsArr);
+            loadDashboardFiltered(filtered);
         });
     </script>
 
