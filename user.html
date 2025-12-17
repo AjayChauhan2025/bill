@@ -183,6 +183,8 @@
         let productsArr = [];
         let mappingsArr = [];
         let currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+        let editBillId = null;
+
 
 
         /* ====== DOM references (important for module scripts) ====== */
@@ -300,10 +302,18 @@
                     photo: photoUrl,
                     createdAt: serverTimestamp()
                 };
-                await addDoc(collection(db, "bills"), bill);
+                if (editBillId) {
+                    await setDoc(doc(db, "bills", editBillId), bill, { merge: true });
+                    msg.innerText = "✏️ Bill updated successfully!";
+                    editBillId = null;
+                } else {
+                    await addDoc(collection(db, "bills"), bill);
+                    msg.innerText = "✅ Bill saved!";
+                }
+
                 billForm.reset();
                 total.value = 0;
-                msg.innerText = "✅ Bill saved!";
+                
             } catch (err) {
                 console.error("Save bill error:", err);
                 msg.innerText = "❌ Error saving bill. Check console.";
@@ -322,7 +332,15 @@
                       <td>${b.pcs || ""}</td><td>${b.rate || ""}</td><td>${b.total || ""}</td><td>${b.status || ""}</td>
                       <td>${viewBtn}</td>
                       <td>${remarkText}</td>
-                      <td><button class="btn btn-sm btn-danger" onclick="deleteBill('${b.id}')">Delete</button></td>
+                     <td>
+  <button class="btn btn-sm btn-warning me-1" onclick="editBill('${b.id}')">
+    <i class="bi bi-pencil"></i> Edit
+  </button>
+  <button class="btn btn-sm btn-danger" onclick="deleteBill('${b.id}')">
+    <i class="bi bi-trash"></i> Delete
+  </button>
+</td>
+
                     </tr>`;
             });
         }
@@ -341,6 +359,27 @@
                 }
             }
         }
+        window.editBill = function (id) {
+            const bill = billsArr.find(b => b.id === id);
+            if (!bill) return;
+
+            editBillId = id;
+
+            // form values set કરો
+            billDate.value = bill.date || "";
+            billNo.value = bill.billNo || "";
+            partyName.value = bill.party || "";
+            productName.value = bill.product || "";
+            pcs.value = bill.pcs || 0;
+            rate.value = bill.rate || 0;
+            total.value = bill.total || 0;
+            status.value = bill.status || "Paid";
+            remark.value = bill.remark || "";
+
+            // section switch
+            showSection("addBill");
+        };
+
 
         /* 🔹 Filters */
         window.applyBillFilters = function () {
