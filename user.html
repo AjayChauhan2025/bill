@@ -81,373 +81,578 @@
 
 
 
-        <!-- Main Content -->
+        <!-- ================= MAIN CONTENT ================= -->
         <div class="content flex-grow-1">
 
-            <!-- Dashboard -->
+            <!-- ================= DASHBOARD ================= -->
             <div id="dashboard">
                 <h4>Dashboard</h4>
-                <div class="mb-4 text-center">
-                    <span id="deptNameLabel" style="display:block;font-weight:700;font-size:42px;color:#6a11cb;text-shadow:2px 2px 5px rgba(0,0,0,0.3);"></span>
-                    <span id="userNameLabel" style="display:block;font-size:20px;font-weight:600;color:#FF6B6B;margin-top:5px;text-shadow:1px 1px 3px rgba(0,0,0,0.2);"></span>
-                    <span id="deptBox" style="font-size:18px;font-weight:bold;color:#008000;"></span>
 
+                <div class="mb-4 text-center">
+                    <span id="deptNameLabel"
+                          style="display:block;font-weight:700;font-size:42px;color:#6a11cb;"></span>
+                    <span id="userNameLabel"
+                          style="display:block;font-size:20px;font-weight:600;color:#FF6B6B;"></span>
+                    <span id="deptBox"
+                          style="font-size:18px;font-weight:bold;color:#008000;"></span>
                 </div>
+
                 <div class="row g-3">
-                    <div class="col-md-3"><div class="stat-box" id="totalAmount">₹0</div><small>Total Kharch</small></div>
-                    <div class="col-md-3"><div class="stat-box" id="paidAmount">₹0</div><small>Paid</small></div>
-                    <div class="col-md-3"><div class="stat-box" id="unpaidAmount">₹0</div><small>Unpaid</small></div>
-                    <div class="col-md-3"><button class="btn btn-primary w-100" onclick="refreshDashboard()">🔄 Refresh</button></div>
+                    <div class="col-md-3">
+                        <div class="stat-box" id="totalAmount">₹0</div>
+                        <small>Total Kharch</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box" id="paidAmount">₹0</div>
+                        <small>Paid</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box" id="unpaidAmount">₹0</div>
+                        <small>Unpaid</small>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" onclick="refreshDashboard()">
+                            🔄 Refresh
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Add Bill -->
+            <!-- ================= ADD BILL ================= -->
             <div id="addBill" class="hidden">
                 <h4>Add Bill</h4>
+
                 <form id="billForm">
                     <div class="row g-2">
-                        <div class="col-md-3"><input type="date" id="billDate" class="form-control" required></div>
-                        <div class="col-md-3"><input type="text" id="billNo" class="form-control" placeholder="Bill No" required></div>
-                        <div class="col-md-3"><select id="partyName" class="form-control" required><option value="">Select Party</option></select></div>
-                        <div class="col-md-3"><select id="productName" class="form-control" required><option value="">Select Product</option></select></div>
-                    </div>
-                    <div class="row g-2 mt-2">
-                        <div class="col-md-2"><input type="number" id="pcs" class="form-control" placeholder="PCS" required></div>
-                        <div class="col-md-2"><input type="number" id="rate" class="form-control" placeholder="Rate" required></div>
-                        <div class="col-md-2"><input type="text" id="total" class="form-control" placeholder="Total Amount" readonly></div>
                         <div class="col-md-3">
-                            <select id="status" class="form-control" required>
+                            <input type="date" id="billDate" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" id="billNo" class="form-control" placeholder="Bill No" required>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="partyName" class="form-control" required>
+                                <option value="">Select Party</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="productName" class="form-control" required>
+                                <option value="">Select Product</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-2">
+                        <div class="col-md-2">
+                            <input type="number" id="pcs" class="form-control" placeholder="PCS" required>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" id="rate" class="form-control" placeholder="Rate" required>
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" id="total" class="form-control" placeholder="Total" readonly>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="status" class="form-control">
                                 <option value="Paid">Paid</option>
                                 <option value="Unpaid">Unpaid</option>
                             </select>
                         </div>
-                        <div class="col-md-3"><input type="file" id="billPhoto" class="form-control" accept="image/*,.pdf"></div>
-                        <div class="col-md-3"><input type="text" id="remark" class="form-control" placeholder="Remark"></div>
+                        <div class="col-md-3">
+                            <input type="file" id="billPhoto" class="form-control" accept="image/*,.pdf">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" id="remark" class="form-control" placeholder="Remark">
+                        </div>
                     </div>
+
                     <div class="row mt-2">
-                        <div class="col-md-2"><button type="submit" class="btn btn-success w-100">Save</button></div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-success w-100">
+                                Save Bill
+                            </button>
+                        </div>
                     </div>
                 </form>
+
                 <small id="msg" class="text-success"></small>
-                <hr>
-                <!-- Filter -->
-                <div class="row g-2 mb-3 mt-2">
-                    <div class="col-md-2"><select id="filterMonth" class="form-control"><option value="">All Months</option><option value="01">January</option><option value="02">February</option>...<option value="12">December</option></select></div>
-                    <div class="col-md-2"><select id="filterYear" class="form-control"><option value="">All Years</option><option value="2024">2024</option><option value="2025">2025</option></select></div>
-                    <div class="col-md-2"><select id="filterParty" class="form-control"><option value="">All Parties</option></select></div>
-                    <div class="col-md-2"><select id="filterProduct" class="form-control"><option value="">All Products</option></select></div>
-                    <div class="col-md-2"><select id="filterStatus" class="form-control"><option value="">All Status</option><option value="Paid">Paid</option><option value="Unpaid">Unpaid</option></select></div>
-                    <div class="col-md-2"><button class="btn btn-primary w-100" onclick="applyBillFilters()">Filter</button></div>
+            </div>
+
+            <!-- ================= VIEW BILL ================= -->
+            <div id="viewBill" class="hidden">
+                <h4>View Bills</h4>
+                <!-- Quick Date Filters -->
+                <div class="mb-2">
+                    <label class="me-3">
+                        <input type="radio" name="dateQuickFilter" value="all" checked
+                               onclick="applyQuickFilter()"> All
+                    </label>
+
+                    <label class="me-3">
+                        <input type="radio" name="dateQuickFilter" value="month"
+                               onclick="applyQuickFilter()"> This Month
+                    </label>
+
+                    <label class="me-3">
+                        <input type="radio" name="dateQuickFilter" value="today"
+                               onclick="applyQuickFilter()"> Today
+                    </label>
                 </div>
-                <!-- Table -->
+
+                <!-- From - To Date Filter -->
+                <div class="row g-2 mb-3 mt-2">
+                    <div class="col-md-2">
+                        <input type="date" id="fromDate" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="date" id="toDate" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <select id="filterParty" class="form-control">
+                            <option value="">All Parties</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select id="filterProduct" class="form-control">
+                            <option value="">All Products</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select id="filterStatus" class="form-control">
+                            <option value="">All Status</option>
+                            <option value="Paid">Paid</option>
+                            <option value="Unpaid">Unpaid</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary w-100" onclick="applyBillFilters()">
+                            Filter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bills Table -->
                 <table class="table table-bordered table-sm">
-                    <thead><tr><th>Date</th><th>Bill No</th><th>Party</th><th>Product</th><th>PCS</th><th>Rate</th><th>Total</th><th>Status</th><th>Bill</th><th>Remark</th><th>Actions</th></tr></thead>
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Bill No</th>
+                            <th>Party</th>
+                            <th>Product</th>
+                            <th>PCS</th>
+                            <th>Rate</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Bill</th>
+                            <th>Remark</th>
+                        </tr>
+                    </thead>
                     <tbody id="billTableBody"></tbody>
                 </table>
             </div>
 
-            <!-- Modal -->
-            <div class="modal fade" id="billModal" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
+            <!-- ================= BILL MODAL ================= -->
+            <div class="modal fade" id="billModal" tabindex="-1">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content">
-                        <div class="modal-header"><h5 class="modal-title">Bill Preview</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                        <div class="modal-body text-center"><img id="billImage" src="" class="img-fluid" alt="Bill Image"></div>
+                        <div class="modal-header">
+                            <h5 class="modal-title">Bill Preview</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img id="billImage" class="img-fluid">
+                        </div>
                     </div>
                 </div>
             </div>
 
         </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, setDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
-
-        /* 🔹 Firebase Config (same as admin.html) */
-        const firebaseConfig = {
-            apiKey: "AIzaSyA1arlDFhHRjH4aACZUnDFGHjZcHNStZLg",
-            authDomain: "bill-74883.firebaseapp.com",
-            projectId: "bill-74883",
-            storageBucket: "bill-74883.firebasestorage.app",
-            messagingSenderId: "1013144600935",
-            appId: "1:1013144600935:web:4a6d8e11b2482e482aefc2"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-
-        /* 🔹 Global variables */
-        let billsArr = [];
-        let partyListArr = [];
-        let productsArr = [];
-        let mappingsArr = [];
-        let currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
-        let editBillId = null;
 
 
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+            import { getFirestore, collection, addDoc, setDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+            import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
-        /* ====== DOM references (important for module scripts) ====== */
-        const billForm = document.getElementById("billForm");
-        const pcs = document.getElementById("pcs");
-        const rate = document.getElementById("rate");
-        const total = document.getElementById("total");
-        const billDate = document.getElementById("billDate");
-        const billNo = document.getElementById("billNo");
-        const partyName = document.getElementById("partyName");
-        const productName = document.getElementById("productName");
-        const status = document.getElementById("status");
-        const remark = document.getElementById("remark");
-        const billPhoto = document.getElementById("billPhoto");
-        const msg = document.getElementById("msg");
-        const billImage = document.getElementById("billImage");
-        const billModal = document.getElementById("billModal");
-
-        const filterMonth = document.getElementById("filterMonth");
-        const filterYear = document.getElementById("filterYear");
-        const filterParty = document.getElementById("filterParty");
-        const filterProduct = document.getElementById("filterProduct");
-        const filterStatus = document.getElementById("filterStatus");
-
-        const billTableBody = document.getElementById("billTableBody");
-
-        const totalAmount = document.getElementById("totalAmount");
-        const paidAmount = document.getElementById("paidAmount");
-        const unpaidAmount = document.getElementById("unpaidAmount");
-        const deptNameLabel = document.getElementById("deptNameLabel");
-        const userNameLabel = document.getElementById("userNameLabel");
-
-        /* 🔹 Section switch */
-        window.showSection = function (id) {
-            document.querySelectorAll(".content > div").forEach(d => d.classList.add("hidden"));
-            document.getElementById(id).classList.remove("hidden");
-            if (id === "dashboard") refreshDashboard();
-        }
-
-        /* 🔹 Auto total calc */
-        pcs.addEventListener("input", calcTotal);
-        rate.addEventListener("input", calcTotal);
-        function calcTotal() {
-            total.value = (+pcs.value || 0) * (+rate.value || 0);
-        }
-
-        /* 🔹 Real-time listeners */
-        onSnapshot(query(collection(db, "bills"), orderBy("createdAt")), snap => {
-            billsArr = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            displayBills(billsArr.filter(b => b.fullName === currentUser.fullName));
-
-            refreshDashboard();
-        });
-        onSnapshot(query(collection(db, "parties")), snap => {
-            partyListArr = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            loadDropdowns(); loadFilterDropdowns();
-        });
-        onSnapshot(query(collection(db, "products")), snap => {
-            productsArr = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            loadDropdowns(); loadFilterDropdowns();
-        });
-        onSnapshot(query(collection(db, "mappings")), snap => {
-            mappingsArr = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            loadDropdowns();
-        });
-
-        /* 🔹 Load dropdowns */
-        function loadDropdowns() {
-            if (!currentUser) return;
-            let partySel = document.getElementById("partyName");
-            partySel.innerHTML = "<option value=''>Select Party</option>";
-            partyListArr.forEach(p => partySel.innerHTML += `<option>${p.name}</option>`);
-            let mapping = getDeptMapping(currentUser.dept);
-            let prodSel = document.getElementById("productName");
-            prodSel.innerHTML = "<option value=''>Select Product</option>";
-            mapping.products.forEach(p => prodSel.innerHTML += `<option>${p}</option>`);
-        }
-        function getDeptMapping(dept) {
-            let related = mappingsArr.filter(m => {
-                // handle if m.dept is array or string
-                if (!m.dept) return false;
-                if (Array.isArray(m.dept)) return m.dept.includes(dept);
-                return ("" + m.dept).includes(dept);
-            });
-            return {
-                products: [...new Set(related.map(m => m.product).join(",").split(",").filter(Boolean))],
-                processes: [...new Set(related.map(m => m.process).join(",").split(",").filter(Boolean))]
+            /* 🔹 Firebase Config (same as admin.html) */
+            const firebaseConfig = {
+                apiKey: "AIzaSyA1arlDFhHRjH4aACZUnDFGHjZcHNStZLg",
+                authDomain: "bill-74883.firebaseapp.com",
+                projectId: "bill-74883",
+                storageBucket: "bill-74883.firebasestorage.app",
+                messagingSenderId: "1013144600935",
+                appId: "1:1013144600935:web:4a6d8e11b2482e482aefc2"
             };
-        }
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+            const storage = getStorage(app);
 
-        /* 🔹 Save Bill */
-        billForm.addEventListener("submit", async e => {
-            e.preventDefault();
-            try {
-                msg.innerText = ""; // clear
-                let file = billPhoto.files[0];
-                let photoUrl = "";
-                if (file) {
-                    const sRef = ref(storage, "bills/" + Date.now() + "_" + file.name);
-                    await uploadBytes(sRef, file);
-                    photoUrl = await getDownloadURL(sRef);
+            /* 🔹 Global variables */
+            let billsArr = [];
+            let partyListArr = [];
+            let productsArr = [];
+            let mappingsArr = [];
+            let currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
+            let editBillId = null;
+
+
+
+            /* ====== DOM references (important for module scripts) ====== */
+            const billForm = document.getElementById("billForm");
+            const pcs = document.getElementById("pcs");
+            const rate = document.getElementById("rate");
+            const total = document.getElementById("total");
+            const billDate = document.getElementById("billDate");
+            const billNo = document.getElementById("billNo");
+            const partyName = document.getElementById("partyName");
+            const productName = document.getElementById("productName");
+            const status = document.getElementById("status");
+            const remark = document.getElementById("remark");
+            const billPhoto = document.getElementById("billPhoto");
+            const msg = document.getElementById("msg");
+            const billImage = document.getElementById("billImage");
+            const billModal = document.getElementById("billModal");
+
+            const filterMonth = document.getElementById("filterMonth");
+            const filterYear = document.getElementById("filterYear");
+            const filterParty = document.getElementById("filterParty");
+            const filterProduct = document.getElementById("filterProduct");
+            const filterStatus = document.getElementById("filterStatus");
+
+            const billTableBody = document.getElementById("billTableBody");
+
+            const totalAmount = document.getElementById("totalAmount");
+            const paidAmount = document.getElementById("paidAmount");
+            const unpaidAmount = document.getElementById("unpaidAmount");
+            const deptNameLabel = document.getElementById("deptNameLabel");
+            const userNameLabel = document.getElementById("userNameLabel");
+
+            /* 🔹 Section switch */
+            window.showSection = function (id) {
+
+                document.querySelectorAll(".content > div")
+                    .forEach(d => d.classList.add("hidden"));
+
+                document.getElementById(id).classList.remove("hidden");
+
+                // 🔥 IMPORTANT
+                if (id === "viewBill") {
+                    console.log("Opening View Bill");
+
+                    const data = billsArr.filter(b => b.dept === currentUser.dept);
+                    console.log("View Bill Data:", data);
+
+                    displayBills(data);
                 }
-                const bill = {
-                    dept: currentUser?.dept || "",
-                    fullName: currentUser?.fullName || "",
-                    date: billDate.value,
-                    billNo: billNo.value,
-                    party: partyName.value,
-                    product: productName.value,
-                    pcs: +pcs.value || 0,
-                    rate: +rate.value || 0,
-                    total: (+pcs.value || 0) * (+rate.value || 0),
-                    status: status.value,
-                    remark: remark.value || "",
-                    photo: photoUrl,
-                    createdAt: serverTimestamp()
-                };
-                if (editBillId) {
-                    await setDoc(doc(db, "bills", editBillId), bill, { merge: true });
-                    msg.innerText = "✏️ Bill updated successfully!";
-                    editBillId = null;
-                } else {
-                    await addDoc(collection(db, "bills"), bill);
-                    msg.innerText = "✅ Bill saved!";
+                if (id === "viewBill") {
+
+                    loadViewBillProductFilter();   // 🔥 IMPORTANT
+
+                    displayBills(
+                        billsArr.filter(b => b.dept === currentUser.dept)
+                    );
                 }
 
-                billForm.reset();
-                total.value = 0;
-                
-            } catch (err) {
-                console.error("Save bill error:", err);
-                msg.innerText = "❌ Error saving bill. Check console.";
+            };
+
+
+            /* 🔹 Auto total calc */
+            pcs.addEventListener("input", calcTotal);
+            rate.addEventListener("input", calcTotal);
+            function calcTotal() {
+                total.value = (+pcs.value || 0) * (+rate.value || 0);
             }
-        });
 
-        /* 🔹 Display Bills */
-        function displayBills(data) {
-            billTableBody.innerHTML = "";
-            data.forEach((b, i) => {
-                // Use a safe button for view
-                const viewBtn = b.photo ? `<button class='btn btn-sm btn-info' onclick="openBillModal('${b.photo.replace(/'/g, "\\'")}')">View</button>` : "<span class='text-muted'>No File</span>";
-                const remarkText = b.remark || "";
-                billTableBody.innerHTML += `<tr>
-                      <td>${b.date || ""}</td><td>${b.billNo || ""}</td><td>${b.party || ""}</td><td>${b.product || ""}</td>
-                      <td>${b.pcs || ""}</td><td>${b.rate || ""}</td><td>${b.total || ""}</td><td>${b.status || ""}</td>
-                      <td>${viewBtn}</td>
-                      <td>${remarkText}</td>
-                     <td>
-  <button class="btn btn-sm btn-warning me-1" onclick="editBill('${b.id}')">
-    <i class="bi bi-pencil"></i> Edit
-  </button>
-  <button class="btn btn-sm btn-danger" onclick="deleteBill('${b.id}')">
-    <i class="bi bi-trash"></i> Delete
-  </button>
+            /* 🔹 Real-time listeners */
+            onSnapshot(query(collection(db, "bills"), orderBy("createdAt")), snap => {
+                billsArr = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                displayBills(billsArr.filter(b => b.fullName === currentUser.fullName));
+
+                refreshDashboard();
+            });
+            onSnapshot(query(collection(db, "parties")), snap => {
+                partyListArr = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                loadDropdowns(); loadFilterDropdowns();
+            });
+            onSnapshot(query(collection(db, "products")), snap => {
+                productsArr = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                loadDropdowns(); loadFilterDropdowns();
+            });
+            onSnapshot(query(collection(db, "mappings")), snap => {
+                mappingsArr = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                loadDropdowns();
+            });
+
+            /* 🔹 Load dropdowns */
+            function loadDropdowns() {
+                if (!currentUser) return;
+                let partySel = document.getElementById("partyName");
+                partySel.innerHTML = "<option value=''>Select Party</option>";
+                partyListArr.forEach(p => partySel.innerHTML += `<option>${p.name}</option>`);
+                let mapping = getDeptMapping(currentUser.dept);
+                let prodSel = document.getElementById("productName");
+                prodSel.innerHTML = "<option value=''>Select Product</option>";
+                mapping.products.forEach(p => prodSel.innerHTML += `<option>${p}</option>`);
+            }
+            function getDeptMapping(dept) {
+                let related = mappingsArr.filter(m => {
+                    // handle if m.dept is array or string
+                    if (!m.dept) return false;
+                    if (Array.isArray(m.dept)) return m.dept.includes(dept);
+                    return ("" + m.dept).includes(dept);
+                });
+                return {
+                    products: [...new Set(related.map(m => m.product).join(",").split(",").filter(Boolean))],
+                    processes: [...new Set(related.map(m => m.process).join(",").split(",").filter(Boolean))]
+                };
+            }
+
+            /* 🔹 Save Bill */
+            billForm.addEventListener("submit", async e => {
+                e.preventDefault();
+                try {
+                    msg.innerText = ""; // clear
+                    let file = billPhoto.files[0];
+                    let photoUrl = "";
+                    if (file) {
+                        const sRef = ref(storage, "bills/" + Date.now() + "_" + file.name);
+                        await uploadBytes(sRef, file);
+                        photoUrl = await getDownloadURL(sRef);
+                    }
+                    const bill = {
+                        dept: currentUser?.dept || "",
+                        fullName: currentUser?.fullName || "",
+                        date: billDate.value,
+                        billNo: billNo.value,
+                        party: partyName.value,
+                        product: productName.value,
+                        pcs: +pcs.value || 0,
+                        rate: +rate.value || 0,
+                        total: (+pcs.value || 0) * (+rate.value || 0),
+                        status: status.value,
+                        remark: remark.value || "",
+                        photo: photoUrl,
+                        createdAt: serverTimestamp()
+                    };
+                    if (editBillId) {
+                        await setDoc(doc(db, "bills", editBillId), bill, { merge: true });
+                        msg.innerText = "✏️ Bill updated successfully!";
+                        editBillId = null;
+                    } else {
+                        await addDoc(collection(db, "bills"), bill);
+                        msg.innerText = "✅ Bill saved!";
+                    }
+
+                    billForm.reset();
+                    total.value = 0;
+
+                } catch (err) {
+                    console.error("Save bill error:", err);
+                    msg.innerText = "❌ Error saving bill. Check console.";
+                }
+            });
+
+            /* 🔹 Display Bills */
+            function displayBills(data) {
+                billTableBody.innerHTML = "";
+                data.forEach((b, i) => {
+                    // Use a safe button for view
+                    const viewBtn = b.photo ? `<button class='btn btn-sm btn-info' onclick="openBillModal('${b.photo.replace(/'/g, "\\'")}')">View</button>` : "<span class='text-muted'>No File</span>";
+                    const remarkText = b.remark || "";
+                    billTableBody.innerHTML += `<tr>
+                                      <td>${b.date || ""}</td><td>${b.billNo || ""}</td><td>${b.party || ""}</td><td>${b.product || ""}</td>
+                                      <td>${b.pcs || ""}</td><td>${b.rate || ""}</td><td>${b.total || ""}</td><td>${b.status || ""}</td>
+                                      <td>${viewBtn}</td>
+                                      <td>${remarkText}</td>
+                                     <td>
+                  <button class="btn btn-sm btn-warning me-1" onclick="editBill('${b.id}')">
+                    <i class="bi bi-pencil"></i> Edit
+                  </button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteBill('${b.id}')">
+                    <i class="bi bi-trash"></i> Delete
+                  </button>
 </td>
 
-                    </tr>`;
-            });
-        }
-        window.openBillModal = function (url) {
-            billImage.src = url;
-            const modal = new bootstrap.Modal(billModal);
-            modal.show();
-        }
-        window.deleteBill = async function (id) {
-            if (confirm("Delete bill?")) {
-                try {
-                    await deleteDoc(doc(db, "bills", id));
-                } catch (err) {
-                    console.error("Error deleting:", err);
-                    alert("Error deleting bill. See console.");
+                                    </tr>`;
+                });
+            }
+            window.openBillModal = function (url) {
+                billImage.src = url;
+                const modal = new bootstrap.Modal(billModal);
+                modal.show();
+            }
+            window.deleteBill = async function (id) {
+                if (confirm("Delete bill?")) {
+                    try {
+                        await deleteDoc(doc(db, "bills", id));
+                    } catch (err) {
+                        console.error("Error deleting:", err);
+                        alert("Error deleting bill. See console.");
+                    }
                 }
             }
-        }
-        window.editBill = function (id) {
-            const bill = billsArr.find(b => b.id === id);
-            if (!bill) return;
+            window.editBill = function (id) {
+                const bill = billsArr.find(b => b.id === id);
+                if (!bill) return;
 
-            editBillId = id;
+                editBillId = id;
 
-            // form values set કરો
-            billDate.value = bill.date || "";
-            billNo.value = bill.billNo || "";
-            partyName.value = bill.party || "";
-            productName.value = bill.product || "";
-            pcs.value = bill.pcs || 0;
-            rate.value = bill.rate || 0;
-            total.value = bill.total || 0;
-            status.value = bill.status || "Paid";
-            remark.value = bill.remark || "";
+                // form values set કરો
+                billDate.value = bill.date || "";
+                billNo.value = bill.billNo || "";
+                partyName.value = bill.party || "";
+                productName.value = bill.product || "";
+                pcs.value = bill.pcs || 0;
+                rate.value = bill.rate || 0;
+                total.value = bill.total || 0;
+                status.value = bill.status || "Paid";
+                remark.value = bill.remark || "";
 
-            // section switch
-            showSection("addBill");
-        };
+                // section switch
+                showSection("addBill");
+            };
 
 
-        /* 🔹 Filters */
-        window.applyBillFilters = function () {
-            let m = filterMonth.value, y = filterYear.value, p = filterParty.value, pr = filterProduct.value, s = filterStatus.value;
-            let f = billsArr.filter(b => {
-                if (!b.date) return false;
-                let d = new Date(b.date);
-                if (isNaN(d.getTime())) return false;
-                let bm = ("0" + (d.getMonth() + 1)).slice(-2);
-                let by = "" + d.getFullYear();
-                return (!m || bm === m) && (!y || by === y) && (!p || b.party === p) && (!pr || b.product === pr) && (!s || b.status === s) && (b.dept === currentUser?.dept);
-            });
-            displayBills(f);
-        }
-        function loadFilterDropdowns() {
-            let ps = document.getElementById("filterParty"); ps.innerHTML = "<option value=''>All Parties</option>"; partyListArr.forEach(p => ps.innerHTML += `<option>${p.name}</option>`);
-            let pr = document.getElementById("filterProduct"); pr.innerHTML = "<option value=''>All Products</option>"; productsArr.forEach(p => pr.innerHTML += `<option>${p.name}</option>`);
-        }
+            /* 🔹 Filters */
+            window.applyBillFilters = function () {
 
-        /* 🔹 Dashboard */
-        function refreshDashboard() {
-            if (!currentUser) return;
-            let userBills = billsArr.filter(b => b.dept === currentUser.dept);
-            let totalSum = 0, paid = 0, unpaid = 0;
-            userBills.forEach(b => { let amt = +b.total || 0; totalSum += amt; if (b.status === "Paid") paid += amt; else unpaid += amt; });
-            totalAmount.innerText = "₹" + totalSum;
-            paidAmount.innerText = "₹" + paid;
-            unpaidAmount.innerText = "₹" + unpaid;
-            deptNameLabel.innerText = currentUser.dept || "";
-            userNameLabel.innerText = currentUser.fullName || "";
-        }
-        /* 🔹 Show Current Date, Time & Day */
-        function updateDateTime() {
-            const now = new Date();
+                if (!currentUser) return;
 
-            const days = [
-                "રવિવાર", "સોમવાર", "મંગળવાર",
-                "બુધવાર", "ગુરુવાર", "શુક્રવાર", "શનિવાર"
-            ];
+                // Radio reset
+                document.querySelector(
+                    'input[name="dateQuickFilter"][value="all"]'
+                ).checked = true;
 
-            let dayName = days[now.getDay()];
-            let date = now.toLocaleDateString("en-IN");
-            let time = now.toLocaleTimeString("en-IN");
+                let from = document.getElementById("fromDate").value;
+                let to = document.getElementById("toDate").value;
+                let p = filterParty.value;
+                let pr = filterProduct.value;
+                let s = filterStatus.value;
 
-            document.getElementById("dateTimeBox").innerText =
-                `${date} | ${time} | ${dayName}`;
-        }
+                let filtered = billsArr.filter(b => {
 
-        /* Auto update every 1 second */
-        setInterval(updateDateTime, 1000);
-        updateDateTime();
+                    if (b.dept !== currentUser.dept) return false;
 
-        /* 🔹 Show Logged User Department */
-        function showDeptName() {
-            if (currentUser && currentUser.dept) {
-                document.getElementById("deptBox").innerText =
-                    `Dept: ${currentUser.dept}`;
+                    if (from && new Date(b.date) < new Date(from)) return false;
+                    if (to && new Date(b.date) > new Date(to)) return false;
+
+                    return (!p || b.party === p) &&
+                        (!pr || b.product === pr) &&
+                        (!s || b.status === s);
+                });
+
+                displayBills(filtered);
+            };
+
+            function loadFilterDropdowns() {
+                let ps = document.getElementById("filterParty"); ps.innerHTML = "<option value=''>All Parties</option>"; partyListArr.forEach(p => ps.innerHTML += `<option>${p.name}</option>`);
+                let pr = document.getElementById("filterProduct"); pr.innerHTML = "<option value=''>All Products</option>"; productsArr.forEach(p => pr.innerHTML += `<option>${p.name}</option>`);
             }
-        }
-        showDeptName();
+            function loadViewBillProductFilter() {
+
+                const productSelect = document.getElementById("filterProduct");
+                if (!productSelect || !currentUser) return;
+
+                productSelect.innerHTML = `<option value="">All Products</option>`;
+
+                // 🔥 department mapping પરથી products કાઢો
+                let mapping = getDeptMapping(currentUser.dept);
+
+                mapping.products.forEach(p => {
+                    productSelect.innerHTML += `<option value="${p}">${p}</option>`;
+                });
+            }
 
 
-        /* 🔹 Logout */
-        window.logout = function () { localStorage.removeItem("currentUser"); location.href = "index.html"; }
+            /* 🔹 Dashboard */
+            function refreshDashboard() {
+                if (!currentUser) return;
+                let userBills = billsArr.filter(b => b.dept === currentUser.dept);
+                let totalSum = 0, paid = 0, unpaid = 0;
+                userBills.forEach(b => { let amt = +b.total || 0; totalSum += amt; if (b.status === "Paid") paid += amt; else unpaid += amt; });
+                totalAmount.innerText = "₹" + totalSum;
+                paidAmount.innerText = "₹" + paid;
+                unpaidAmount.innerText = "₹" + unpaid;
+                deptNameLabel.innerText = currentUser.dept || "";
+                userNameLabel.innerText = currentUser.fullName || "";
+            }
+            /* 🔹 Show Current Date, Time & Day */
+            function updateDateTime() {
+                const now = new Date();
 
-        /* Init */
-        window.addEventListener("DOMContentLoaded", () => { displayUserDeptInfo(); });
-        function displayUserDeptInfo() { if (currentUser) { deptNameLabel.innerText = currentUser.dept; userNameLabel.innerText = currentUser.fullName; } }
-    </script>
+                const days = [
+                    "રવિવાર", "સોમવાર", "મંગળવાર",
+                    "બુધવાર", "ગુરુવાર", "શુક્રવાર", "શનિવાર"
+                ];
+
+                let dayName = days[now.getDay()];
+                let date = now.toLocaleDateString("en-IN");
+                let time = now.toLocaleTimeString("en-IN");
+
+                document.getElementById("dateTimeBox").innerText =
+                    `${date} | ${time} | ${dayName}`;
+            }
+
+            /* Auto update every 1 second */
+            setInterval(updateDateTime, 1000);
+            updateDateTime();
+
+            /* 🔹 Show Logged User Department */
+            function showDeptName() {
+                if (currentUser && currentUser.dept) {
+                    document.getElementById("deptBox").innerText =
+                        `Dept: ${currentUser.dept}`;
+                }
+            }
+            showDeptName();
+
+            window.applyQuickFilter = function () {
+
+                if (!currentUser) return;
+
+                const selected = document.querySelector(
+                    'input[name="dateQuickFilter"]:checked'
+                ).value;
+
+                let filtered = billsArr.filter(b => b.dept === currentUser.dept);
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (selected === "today") {
+                    filtered = filtered.filter(b => {
+                        let d = new Date(b.date);
+                        d.setHours(0, 0, 0, 0);
+                        return d.getTime() === today.getTime();
+                    });
+                }
+
+                if (selected === "month") {
+                    const m = today.getMonth();
+                    const y = today.getFullYear();
+
+                    filtered = filtered.filter(b => {
+                        let d = new Date(b.date);
+                        return d.getMonth() === m && d.getFullYear() === y;
+                    });
+                }
+
+                // Clear manual date inputs
+                document.getElementById("fromDate").value = "";
+                document.getElementById("toDate").value = "";
+
+                displayBills(filtered);
+            };
+
+
+
+            /* 🔹 Logout */
+            window.logout = function () { localStorage.removeItem("currentUser"); location.href = "index.html"; }
+
+            /* Init */
+            window.addEventListener("DOMContentLoaded", () => { displayUserDeptInfo(); });
+            function displayUserDeptInfo() { if (currentUser) { deptNameLabel.innerText = currentUser.dept; userNameLabel.innerText = currentUser.fullName; } }
+        </script>
+    </div>
 </body>
 </html>
