@@ -96,6 +96,44 @@
                     <span id="deptBox"
                           style="font-size:18px;font-weight:bold;color:#008000;"></span>
                 </div>
+                <!-- Notification Icon -->
+                <button type="button"
+                        class="btn btn-outline-warning position-relative"
+                        onclick="openUserNotification()">
+                    🔔
+                    <span id="userNoteBadge"
+                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                        !
+                    </span>
+                </button>
+                <!-- User Notification Modal -->
+                <div class="modal fade" id="userNotificationModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">📢 Admin Notification</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <p id="userNoteText"></p>
+                                <small id="userNoteTime" class="text-muted"></small>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-primary"
+                                        data-bs-dismiss="modal">
+                                    OK
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+
 
                 <div class="row g-3">
                     <div class="col-md-3">
@@ -460,20 +498,20 @@
                     const viewBtn = b.photo ? `<button class='btn btn-sm btn-info' onclick="openBillModal('${b.photo.replace(/'/g, "\\'")}')">View</button>` : "<span class='text-muted'>No File</span>";
                     const remarkText = b.remark || "";
                     billTableBody.innerHTML += `<tr>
-                                      <td>${b.date || ""}</td><td>${b.billNo || ""}</td><td>${b.party || ""}</td><td>${b.product || ""}</td>
-                                      <td>${b.pcs || ""}</td><td>${b.rate || ""}</td><td>${b.total || ""}</td><td>${b.status || ""}</td>
-                                      <td>${viewBtn}</td>
-                                      <td>${remarkText}</td>
-                                     <td>
-                  <button class="btn btn-sm btn-warning me-1" onclick="editBill('${b.id}')">
-                    <i class="bi bi-pencil"></i> Edit
-                  </button>
-                  <button class="btn btn-sm btn-danger" onclick="deleteBill('${b.id}')">
-                    <i class="bi bi-trash"></i> Delete
-                  </button>
+                                              <td>${b.date || ""}</td><td>${b.billNo || ""}</td><td>${b.party || ""}</td><td>${b.product || ""}</td>
+                                              <td>${b.pcs || ""}</td><td>${b.rate || ""}</td><td>${b.total || ""}</td><td>${b.status || ""}</td>
+                                              <td>${viewBtn}</td>
+                                              <td>${remarkText}</td>
+                                             <td>
+                          <button class="btn btn-sm btn-warning me-1" onclick="editBill('${b.id}')">
+                            <i class="bi bi-pencil"></i> Edit
+                          </button>
+                          <button class="btn btn-sm btn-danger" onclick="deleteBill('${b.id}')">
+                            <i class="bi bi-trash"></i> Delete
+                          </button>
 </td>
 
-                                    </tr>`;
+                                            </tr>`;
                 });
             }
             window.openBillModal = function (url) {
@@ -653,6 +691,37 @@
             window.addEventListener("DOMContentLoaded", () => { displayUserDeptInfo(); });
             function displayUserDeptInfo() { if (currentUser) { deptNameLabel.innerText = currentUser.dept; userNameLabel.innerText = currentUser.fullName; } }
         </script>
+        <script>
+            function openUserNotification() {
+
+                let note = localStorage.getItem("adminNotification");
+                let time = localStorage.getItem("adminNotificationTime");
+
+                if (!note) {
+                    alert("No notification available");
+                    return;
+                }
+
+                document.getElementById("userNoteText").innerText = note;
+                document.getElementById("userNoteTime").innerText = "🕒 " + time;
+
+                let modal = new bootstrap.Modal(
+                    document.getElementById("userNotificationModal")
+                );
+                modal.show();
+
+                // Badge remove after view
+                document.getElementById("userNoteBadge").classList.add("d-none");
+            }
+
+            // Show badge if note exists
+            window.onload = function () {
+                if (localStorage.getItem("adminNotification")) {
+                    document.getElementById("userNoteBadge").classList.remove("d-none");
+                }
+            };
+        </script>
+
     </div>
 </body>
 </html>

@@ -136,6 +136,50 @@
 
 
                 <div class="card p-3 mb-3 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">📊 Dashboard Filter</h5>
+
+                        <!-- Notification Icon -->
+                        <button type="button"
+                                class="btn btn-outline-warning position-relative"
+                                data-bs-toggle="modal"
+                                data-bs-target="#notificationModal">
+                            🔔
+                            <span id="noteBadge"
+                                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                                !
+                            </span>
+                        </button>
+
+
+                    </div>
+                    <!-- Notification Modal -->
+                    <div class="modal fade" id="notificationModal" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+
+                                <div class="modal-header">
+                                    <h5 class="modal-title">📢 Admin Notification</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <textarea id="adminNote"
+                                              class="form-control"
+                                              rows="4"
+                                              placeholder="Write notification for all users..."></textarea>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button class="btn btn-success" onclick="saveAdminNote()">💾 Save</button>
+                                    <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
 
                     <!-- Radio Buttons Row -->
                     <div class="row mb-3">
@@ -593,7 +637,7 @@
         </div>
     </div>
 
-   
+
     <script type="module">
 
         window.showSection = function (sectionId) {
@@ -608,7 +652,7 @@
                 section.classList.remove("hidden");
             }
         };
-        
+
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import {
@@ -749,6 +793,7 @@
             });
         }
 
+
         /* ===========================
            Helper: add group item (dept/product/process)
            Matches signature of your original addItemWithActions but writes to Firestore
@@ -812,14 +857,14 @@
                 const div = document.createElement("div");
                 div.className = "form-check d-flex align-items-center justify-content-between mb-1";
                 div.innerHTML = `
-                <div>
-                    <input type="checkbox" class="form-check-input me-1" value="${item.name}" id="${safeId}">
-                    <label class="form-check-label" for="${safeId}">${item.name}</label>
-                </div>
-                <div>
-                    <button class="btn btn-sm btn-primary me-1" onclick="editGroupItem('${storageKey}',${index},'${containerId}')">Edit</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteGroupItem('${storageKey}',${index},'${containerId}')">Delete</button>
-                </div>`;
+                    <div>
+                        <input type="checkbox" class="form-check-input me-1" value="${item.name}" id="${safeId}">
+                        <label class="form-check-label" for="${safeId}">${item.name}</label>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-primary me-1" onclick="editGroupItem('${storageKey}',${index},'${containerId}')">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteGroupItem('${storageKey}',${index},'${containerId}')">Delete</button>
+                    </div>`;
                 container.appendChild(div);
             });
         }
@@ -931,15 +976,15 @@
 
             mappingsArr.forEach((m, index) => {
                 tbody.innerHTML += `
-             <tr>
-                 <td>${m.dept}</td>
-                 <td>${m.product}</td>
-                 <td>${m.process}</td>
-                 <td>
-                     <button class="btn btn-sm btn-primary me-1" onclick="editMapping(${index})">Edit</button>
-                     <button class="btn btn-sm btn-danger" onclick="deleteMapping(${index})">Delete</button>
-                 </td>
-             </tr>`;
+                 <tr>
+                     <td>${m.dept}</td>
+                     <td>${m.product}</td>
+                     <td>${m.process}</td>
+                     <td>
+                         <button class="btn btn-sm btn-primary me-1" onclick="editMapping(${index})">Edit</button>
+                         <button class="btn btn-sm btn-danger" onclick="deleteMapping(${index})">Delete</button>
+                     </td>
+                 </tr>`;
             });
         }
 
@@ -1013,16 +1058,16 @@
                 // Create stat boxes dynamically (same output as before)
                 summaryDiv.innerHTML += `
 <div class="col-md-3">
-            <div class="stat-box">${dept}</div>
+                <div class="stat-box">${dept}</div>
 </div>
 <div class="col-md-3">
-            <div class="stat-box">₹${deptTotal}</div>
+                <div class="stat-box">₹${deptTotal}</div>
 </div>
 <div class="col-md-3">
-            <div class="stat-box">₹${deptPaid}</div>
+                <div class="stat-box">₹${deptPaid}</div>
 </div>
 <div class="col-md-3">
-            <div class="stat-box">₹${deptUnpaid}</div>
+                <div class="stat-box">₹${deptUnpaid}</div>
 </div>
 `;
             });
@@ -1038,15 +1083,15 @@
             table.innerHTML = "";
             partyListArr.forEach((p, index) => {
                 let row = `<tr>
-                 <td>${index + 1}</td>
-                 <td>${p.name}</td>
-                 <td>${p.contact}</td>
-                 <td>${p.address}</td>
-                 <td>
-                     <button class="btn btn-warning btn-sm" onclick="editParty(${index})">Edit</button>
-                     <button class="btn btn-danger btn-sm" onclick="deleteParty(${index})">Delete</button>
-                 </td>
-             </tr>`;
+                     <td>${index + 1}</td>
+                     <td>${p.name}</td>
+                     <td>${p.contact}</td>
+                     <td>${p.address}</td>
+                     <td>
+                         <button class="btn btn-warning btn-sm" onclick="editParty(${index})">Edit</button>
+                         <button class="btn btn-danger btn-sm" onclick="deleteParty(${index})">Delete</button>
+                     </td>
+                 </tr>`;
                 table.innerHTML += row;
             });
         }
@@ -1137,27 +1182,27 @@
             tbody.innerHTML = "";
             data.forEach((bill, index) => {
                 const row = `<tr>
-    <td><input type="checkbox" class="billCheck" data-index="${index}"></td>
-    <td>${bill.dept || ""}</td>
-    <td>${bill.date || ""}</td>
-    <td>${bill.billNo || ""}</td>
-    <td>${bill.party || ""}</td>
-    <td>${bill.product || ""}</td>
-    <td>${bill.pcs || ""}</td>
-    <td>${bill.rate || ""}</td>
-    <td>${bill.total || ""}</td>
-    <td>${bill.status || ""}</td>
-    <td>${bill.remark || ""}</td>
-    
-    <td>
-        ${bill.photo
+        <td><input type="checkbox" class="billCheck" data-index="${index}"></td>
+        <td>${bill.dept || ""}</td>
+        <td>${bill.date || ""}</td>
+        <td>${bill.billNo || ""}</td>
+        <td>${bill.party || ""}</td>
+        <td>${bill.product || ""}</td>
+        <td>${bill.pcs || ""}</td>
+        <td>${bill.rate || ""}</td>
+        <td>${bill.total || ""}</td>
+        <td>${bill.status || ""}</td>
+        <td>${bill.remark || ""}</td>
+
+        <td>
+            ${bill.photo
                         ? `<button class="btn btn-sm btn-info me-1" onclick="openBillModal('${bill.photo}')">View Bill</button>`
                         : `<span class="text-muted">No File</span>`}
 
-        ${bill.id
+            ${bill.id
                         ? `<button class="btn btn-sm btn-warning" onclick="openEditBillModal('${bill.id}')">Edit</button>`
                         : `<button class="btn btn-sm btn-warning" onclick="openEditBillModalByIndex(${index})">Edit</button>`}
-    </td>
+        </td>
 </tr>`;
 
                 tbody.innerHTML += row;
@@ -1179,16 +1224,16 @@
             tbody.innerHTML = "";
             billsArr.forEach(b => {
                 tbody.innerHTML += `<tr>
-                    <td>${b.date || ""}</td>
-                    <td>${b.billNo || ""}</td>
-                    <td>${b.party || ""}</td>
-                    <td>${b.product || ""}</td>
-                    <td>${b.pcs || ""}</td>
-                    <td>${b.rate || ""}</td>
-                    <td>${b.total || ""}</td>
-                    <td>${b.status || ""}</td>
-                    <td>${b.dept || ""}</td>
-                </tr>`;
+                        <td>${b.date || ""}</td>
+                        <td>${b.billNo || ""}</td>
+                        <td>${b.party || ""}</td>
+                        <td>${b.product || ""}</td>
+                        <td>${b.pcs || ""}</td>
+                        <td>${b.rate || ""}</td>
+                        <td>${b.total || ""}</td>
+                        <td>${b.status || ""}</td>
+                        <td>${b.dept || ""}</td>
+                    </tr>`;
             });
         }
 
@@ -1207,7 +1252,7 @@
             });
         };
 
-        
+
 
 
 
@@ -1255,16 +1300,16 @@
 
             usersArr.forEach((u, index) => {
                 tbody.innerHTML += `
-                <tr>
-                    <td>${u.dept}</td>
-                    <td>${u.fullName}</td>
-                    <td>${u.username}</td>
-                    <td>${u.password}</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary me-1" onclick="editUser(${index})">Edit</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteUser(${index})">Delete</button>
-                    </td>
-                </tr>`;
+                    <tr>
+                        <td>${u.dept}</td>
+                        <td>${u.fullName}</td>
+                        <td>${u.username}</td>
+                        <td>${u.password}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary me-1" onclick="editUser(${index})">Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser(${index})">Delete</button>
+                        </td>
+                    </tr>`;
             });
         }
 
@@ -1509,11 +1554,11 @@
                     .reduce((s, b) => s + (parseFloat(b.total) || 0), 0);
 
                 summaryDiv.innerHTML += `
-        <div class="col-md-3"><div class="stat-box">${dept}</div></div>
-        <div class="col-md-3"><div class="stat-box">₹${deptTotal}</div></div>
-        <div class="col-md-3"><div class="stat-box">₹${deptPaid}</div></div>
-        <div class="col-md-3"><div class="stat-box">₹${deptUnpaid}</div></div>
-        `;
+            <div class="col-md-3"><div class="stat-box">${dept}</div></div>
+            <div class="col-md-3"><div class="stat-box">₹${deptTotal}</div></div>
+            <div class="col-md-3"><div class="stat-box">₹${deptPaid}</div></div>
+            <div class="col-md-3"><div class="stat-box">₹${deptUnpaid}</div></div>
+            `;
             });
         };
 
@@ -1625,21 +1670,21 @@
             gstBillsArr.forEach((b, index) => {
                 tbody.innerHTML += `
 <tr>
-            <td>${b.date}</td>
-            <td>${b.bills && b.bills.length > 0 ? b.bills[0].party : "-"}</td>
-            <td>${b.bills ? b.bills.map(x => x.billNo).join(", ") : ""}</td>
-            <td>₹${(b.subTotal || 0).toFixed(2)}</td>
-            <td>
-                <input type="number" class="form-control form-control-sm"
-                       value="${b.gstRate || 18}" min="0"
-                       oninput="updateGST(${index}, this.value)">
-            </td>
-            <td id="grandTotal_${index}">
-                ₹${b.grandTotal ? b.grandTotal.toFixed(2) : ((b.subTotal || 0) * 1.18).toFixed(2)}
-            </td>
-            <td>
-                <button class="btn btn-sm btn-danger" onclick="deleteGSTBill(${index})">Delete</button>
-            </td>
+                <td>${b.date}</td>
+                <td>${b.bills && b.bills.length > 0 ? b.bills[0].party : "-"}</td>
+                <td>${b.bills ? b.bills.map(x => x.billNo).join(", ") : ""}</td>
+                <td>₹${(b.subTotal || 0).toFixed(2)}</td>
+                <td>
+                    <input type="number" class="form-control form-control-sm"
+                           value="${b.gstRate || 18}" min="0"
+                           oninput="updateGST(${index}, this.value)">
+                </td>
+                <td id="grandTotal_${index}">
+                    ₹${b.grandTotal ? b.grandTotal.toFixed(2) : ((b.subTotal || 0) * 1.18).toFixed(2)}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="deleteGSTBill(${index})">Delete</button>
+                </td>
 </tr>`;
             });
         }
@@ -1656,24 +1701,24 @@
 
             if (!bill) {
                 resultDiv.innerHTML = `
-            <div class="alert alert-danger">Bill Not Found!</div>
-        `;
+                <div class="alert alert-danger">Bill Not Found!</div>
+            `;
                 return;
             }
 
             // Show Bill Photo
             resultDiv.innerHTML = `
-    <div class="a4-view">
-        <h5>Bill No: ${bill.billNo}</h5>
-        <p><strong>Party:</strong> ${bill.party}</p>
-        <p><strong>Department:</strong> ${bill.dept}</p>
-        <p><strong>Date:</strong> ${bill.date}</p>
+        <div class="a4-view">
+            <h5>Bill No: ${bill.billNo}</h5>
+            <p><strong>Party:</strong> ${bill.party}</p>
+            <p><strong>Department:</strong> ${bill.dept}</p>
+            <p><strong>Date:</strong> ${bill.date}</p>
 
-        ${bill.photo
+            ${bill.photo
                     ? `<img src="${bill.photo}" class="a4-image">`
                     : `<div class="alert alert-warning mt-2">No Bill Image Uploaded</div>`
                 }
-    </div>
+        </div>
 `;
 
         };
@@ -1753,6 +1798,7 @@
 
 
 
+
         /* ===========================
            Window onload equivalent: initialize the real-time listeners and initial render
            =========================== */
@@ -1775,10 +1821,35 @@
             loadFilterDropdowns();
             displayBills(billsArr);
             loadDashboardFiltered(filtered);
-            
+
 
         });
     </script>
+    <script>
+        function saveAdminNote() {
+            let note = document.getElementById("adminNote").value.trim();
+
+            if (!note) {
+                alert("Please write notification");
+                return;
+            }
+
+            localStorage.setItem("adminNotification", note);
+            localStorage.setItem("adminNotificationTime", new Date().toLocaleString());
+
+            document.getElementById("noteBadge").classList.remove("d-none");
+
+            alert("Notification saved");
+
+            // Close modal automatically
+            let modal = bootstrap.Modal.getInstance(
+                document.getElementById("notificationModal")
+            );
+            modal.hide();
+        }
+    </script>
+
+
 
 
 </body>
