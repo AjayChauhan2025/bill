@@ -366,42 +366,39 @@
 
                 <!-- Filters -->
                 <div class="row g-2 mb-3">
+
+                    <!-- From Date -->
                     <div class="col-md-2">
-                        <select id="filterMonth" class="form-control">
-                            <option value="">All Months</option>
-                            <option value="01">January</option>
-                            <option value="02">February</option>
-                            <option value="03">March</option>
-                            <option value="04">April</option>
-                            <option value="05">May</option>
-                            <option value="06">June</option>
-                            <option value="07">July</option>
-                            <option value="08">August</option>
-                            <option value="09">September</option>
-                            <option value="10">October</option>
-                            <option value="11">November</option>
-                            <option value="12">December</option>
-                        </select>
+                        <input type="date" id="fromDate" class="form-control" placeholder="From Date">
                     </div>
 
+                    <!-- To Date -->
+                    <div class="col-md-2">
+                        <input type="date" id="toDate" class="form-control" placeholder="To Date">
+                    </div>
+
+                    <!-- Department -->
                     <div class="col-md-2">
                         <select id="filterDepartment" class="form-control">
                             <option value="">All Departments</option>
                         </select>
                     </div>
 
+                    <!-- Party -->
                     <div class="col-md-2">
                         <select id="filterParty" class="form-control">
                             <option value="">All Parties</option>
                         </select>
                     </div>
 
+                    <!-- Product -->
                     <div class="col-md-2">
                         <select id="filterProduct" class="form-control">
                             <option value="">All Products</option>
                         </select>
                     </div>
 
+                    <!-- Status -->
                     <div class="col-md-2">
                         <select id="filterStatus" class="form-control">
                             <option value="">All Status</option>
@@ -411,15 +408,18 @@
                         </select>
                     </div>
 
+                    <!-- Filter Button -->
                     <div class="col-md-2">
                         <button class="btn btn-primary w-100" onclick="applyBillFilters()">Filter</button>
                     </div>
+
                     <!-- Refresh Button -->
-                    <div class="mb-2">
-                        <button class="btn btn-secondary" onclick="refreshBillTable()">🔄 Refresh</button>
+                    <div class="col-md-2">
+                        <button class="btn btn-secondary w-100" onclick="refreshBillTable()">🔄 Refresh</button>
                     </div>
 
                 </div>
+
 
                 <!-- Table -->
                 <table class="table table-bordered table-sm">
@@ -440,6 +440,13 @@
                         </tr>
                     </thead>
                     <tbody id="billTableBody"></tbody>
+                </table>
+                <table class="table table-bordered table-sm mt-2">
+                    <tr style="background:#f1f1f1; font-weight:bold;">
+                        <td colspan="8" class="text-end">TOTAL</td>
+                        <td>₹ <span id="billTotalRow">0</span></td>
+                        <td colspan="3"></td>
+                    </tr>
                 </table>
                 <button class="btn btn-success mt-2" onclick="convertToGST()">Convert to GST</button>
                 <!-- Modal for Bill Preview -->
@@ -1544,7 +1551,10 @@
         setInterval(updateDashDateTime, 1000);
         updateDashDateTime();
         window.applyBillFilters = function () {
-            let month = document.getElementById("filterMonth").value;
+
+            let fromDate = document.getElementById("fromDate").value;
+            let toDate = document.getElementById("toDate").value;
+
             let dept = document.getElementById("filterDepartment").value;
             let party = document.getElementById("filterParty").value;
             let product = document.getElementById("filterProduct").value;
@@ -1552,43 +1562,54 @@
 
             let filtered = [...billsArr];
 
-            // Month filter
-            if (month !== "") {
-                filtered = filtered.filter(b => b.date && b.date.split("-")[1] === month);
+            // 🔹 From Date filter
+            if (fromDate !== "") {
+                filtered = filtered.filter(b => b.date >= fromDate);
             }
 
-            // Department filter
+            // 🔹 To Date filter
+            if (toDate !== "") {
+                filtered = filtered.filter(b => b.date <= toDate);
+            }
+
+            // 🔹 Department filter
             if (dept !== "") {
                 filtered = filtered.filter(b => b.dept === dept);
             }
 
-            // Party filter
+            // 🔹 Party filter
             if (party !== "") {
                 filtered = filtered.filter(b => b.party === party);
             }
 
-            // Product filter
+            // 🔹 Product filter
             if (product !== "") {
                 filtered = filtered.filter(b => b.product === product);
             }
 
-            // Status filter
+            // 🔹 Status filter
             if (status !== "") {
                 filtered = filtered.filter(b => b.status === status);
             }
 
-            // Display filtered bills
+            // 🔹 Display result
             displayBills(filtered);
+            updateBillTableTotal(filtered);   // 👈 total row update
         };
+
         window.refreshBillTable = function () {
-            document.getElementById("filterMonth").value = "";
+
+            document.getElementById("fromDate").value = "";
+            document.getElementById("toDate").value = "";
             document.getElementById("filterDepartment").value = "";
             document.getElementById("filterParty").value = "";
             document.getElementById("filterProduct").value = "";
             document.getElementById("filterStatus").value = "";
 
             displayBills(billsArr);
+            updateBillTableTotal(billsArr);   // 👈 reset total
         };
+
 
 
 
@@ -1722,6 +1743,14 @@
                 alert("Error updating bill");
             }
         };
+        function updateBillTableTotal(data) {
+            let total = 0;
+            data.forEach(b => {
+                total += parseFloat(b.total) || 0;
+            });
+            document.getElementById("billTotalRow").innerText = total.toFixed(2);
+        }
+
 
 
         /* ===========================
@@ -1746,6 +1775,8 @@
             loadFilterDropdowns();
             displayBills(billsArr);
             loadDashboardFiltered(filtered);
+            
+
         });
     </script>
 
