@@ -568,23 +568,24 @@
 
                                         <div class="col-md-4">
                                             <label>Bill No</label>
-                                            <input type="text" id="editBillNo" class="form-control" readonly>
+                                            <input type="text" id="editBillNo" class="form-control">
                                         </div>
 
                                         <div class="col-md-4">
                                             <label>Department</label>
-                                            <input type="text" id="editBillDept" class="form-control">
+                                            <select id="editBillDept" class="form-control"></select>
                                         </div>
 
                                         <div class="col-md-6 mt-2">
                                             <label>Party</label>
-                                            <input type="text" id="editBillParty" class="form-control">
+                                            <select id="editBillParty" class="form-control"></select>
                                         </div>
 
                                         <div class="col-md-6 mt-2">
                                             <label>Product</label>
-                                            <input type="text" id="editBillProduct" class="form-control">
+                                            <select id="editBillProduct" class="form-control"></select>
                                         </div>
+
 
                                         <div class="col-md-4 mt-2">
                                             <label>PCS</label>
@@ -1300,14 +1301,32 @@
         <td>${bill.remark || ""}</td>
 
         <td>
-            ${bill.photo
-                        ? `<button class="btn btn-sm btn-info me-1" onclick="openBillModal('${bill.photo}')">View Bill</button>`
-                        : `<span class="text-muted">No File</span>`}
+    ${bill.photo
+                        ? `<button class="btn btn-sm btn-info me-1"
+                onclick="openBillModal('${bill.photo}')">
+                View Bill
+           </button>`
+                        : `<span class="text-muted me-1">No File</span>`}
 
-            ${bill.id
-                        ? `<button class="btn btn-sm btn-warning" onclick="openEditBillModal('${bill.id}')">Edit</button>`
-                        : `<button class="btn btn-sm btn-warning" onclick="openEditBillModalByIndex(${index})">Edit</button>`}
-        </td>
+    ${bill.id
+                        ? `<button class="btn btn-sm btn-warning me-1"
+                onclick="openEditBillModal('${bill.id}')">
+                Edit
+           </button>`
+                        : `<button class="btn btn-sm btn-warning me-1"
+                onclick="openEditBillModalByIndex(${index})">
+                Edit
+           </button>`}
+
+    <!-- 🔴 DELETE BUTTON -->
+    ${bill.id
+                        ? `<button class="btn btn-sm btn-danger"
+                onclick="deleteBill('${bill.id}')">
+                Delete
+           </button>`
+                        : ``}
+</td>
+
 </tr>`;
 
                 tbody.innerHTML += row;
@@ -1356,6 +1375,18 @@
                 }
             });
         };
+        window.deleteBill = async function (billId) {
+            if (!confirm("⚠️ Are you sure you want to delete this bill?")) return;
+
+            try {
+                await deleteDoc(doc(db, "bills", billId));
+                alert("✅ Bill Deleted Successfully");
+            } catch (err) {
+                console.error(err);
+                alert("❌ Error deleting bill");
+            }
+        };
+
         function formatDateDMY(dateStr) {
             if (!dateStr) return "";
 
@@ -1834,21 +1865,59 @@
             const modal = new bootstrap.Modal(document.getElementById("editBillModal"));
             modal.show();
         };
+        function loadEditBillDropdowns(bill) {
+
+            // Department
+            const deptSel = document.getElementById("editBillDept");
+            deptSel.innerHTML = "";
+            departmentsArr.forEach(d => {
+                let name = d.name;
+                deptSel.innerHTML += `
+            <option value="${name}" ${bill.dept === name ? "selected" : ""}>
+                ${name}
+            </option>`;
+            });
+
+            // Party
+            const partySel = document.getElementById("editBillParty");
+            partySel.innerHTML = "";
+            partyListArr.forEach(p => {
+                partySel.innerHTML += `
+            <option value="${p.name}" ${bill.party === p.name ? "selected" : ""}>
+                ${p.name}
+            </option>`;
+            });
+
+            // Product
+            const productSel = document.getElementById("editBillProduct");
+            productSel.innerHTML = "";
+            productsArr.forEach(p => {
+                let name = p.name;
+                productSel.innerHTML += `
+            <option value="${name}" ${bill.product === name ? "selected" : ""}>
+                ${name}
+            </option>`;
+            });
+        }
+
 
         // Fill modal fields
         function populateEditModal(bill) {
+
             document.getElementById("editBillId").value = bill.id || "";
             document.getElementById("editBillDate").value = bill.date || "";
             document.getElementById("editBillNo").value = bill.billNo || "";
-            document.getElementById("editBillDept").value = bill.dept || "";
-            document.getElementById("editBillParty").value = bill.party || "";
-            document.getElementById("editBillProduct").value = bill.product || "";
+
             document.getElementById("editBillPcs").value = bill.pcs || "";
             document.getElementById("editBillRate").value = bill.rate || "";
             document.getElementById("editBillTotal").value = bill.total || "";
             document.getElementById("editBillStatus").value = bill.status || "Pending";
             document.getElementById("editBillRemark").value = bill.remark || "";
+
+            // 🔥 Load dropdowns with selected value
+            loadEditBillDropdowns(bill);
         }
+
 
         // Save edited bill
         window.saveBillEdits = async function () {
