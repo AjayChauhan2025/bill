@@ -451,12 +451,12 @@
 
                     <!-- From Date -->
                     <div class="col-md-2">
-                        <input type="date" id="fromDate" class="form-control" placeholder="From Date">
+                        <input type="date" id="billFromDate" class="form-control" placeholder="From Date">
                     </div>
 
                     <!-- To Date -->
                     <div class="col-md-2">
-                        <input type="date" id="toDate" class="form-control" placeholder="To Date">
+                        <input type="date" id="billToDate" class="form-control" placeholder="To Date">
                     </div>
 
                     <!-- Department -->
@@ -1196,32 +1196,48 @@
         window.updateParty = async function () {
             const id = document.getElementById("editPartyId").value;
 
-            const updatedParty = {
-                name: document.getElementById("editPartyName").value.trim(),
-                contact: document.getElementById("editPartyContact").value.trim(),
-                address: document.getElementById("editPartyAddress").value.trim()
-            };
+            const newName = document.getElementById("editPartyName").value.trim();
+            const contact = document.getElementById("editPartyContact").value.trim();
+            const address = document.getElementById("editPartyAddress").value.trim();
 
-            if (!updatedParty.name) {
+            if (!newName) {
                 alert("Party Name required");
                 return;
             }
 
+            // 🔹 Old name શોધો
+            const oldParty = partyListArr.find(p => p.id === id);
+            const oldName = oldParty?.name;
+
             try {
-                await setDoc(doc(db, "parties", id), updatedParty, { merge: true });
+                // 1️⃣ Party update
+                await setDoc(doc(db, "parties", id), {
+                    name: newName,
+                    contact,
+                    address
+                }, { merge: true });
 
-                alert("✅ Party Updated Successfully");
+                // 2️⃣ 🔥 Update all bills having old party name
+                const billsToUpdate = billsArr.filter(b => b.party === oldName);
 
-                const modal = bootstrap.Modal.getInstance(
+                for (let bill of billsToUpdate) {
+                    await setDoc(doc(db, "bills", bill.id), {
+                        party: newName
+                    }, { merge: true });
+                }
+
+                alert("✅ Party Updated Everywhere");
+
+                bootstrap.Modal.getInstance(
                     document.getElementById("editPartyModal")
-                );
-                modal.hide();
+                ).hide();
 
             } catch (err) {
                 console.error(err);
                 alert("❌ Error updating party");
             }
         };
+
 
 
 
@@ -1468,53 +1484,53 @@
            These update bills and gstBills collections
            =========================== */
         window.convertToGST = async function () {
-            let selectedCheckboxes = [...document.querySelectorAll(".billCheck:checked")];
+    let selectedCheckboxes = [...document.querySelectorAll(".billCheck:checked")];
 
-            if (selectedCheckboxes.length === 0) {
-                alert("⚠️ Please select at least one bill!");
-                return;
-            }
+    if (selectedCheckboxes.length === 0) {
+        alert("⚠️ Please select at least one bill!");
+        return;
+    }
 
-            // ✅ Bill ID થી exact bill fetch કરો
-            let billsToConvert = selectedCheckboxes
-                .map(cb => billsArr.find(b => b.id === cb.dataset.id))
-                .filter(b => b && b.status !== "Paid");
+    // ✅ Bill ID થી exact bill fetch કરો
+    let billsToConvert = selectedCheckboxes
+        .map(cb => billsArr.find(b => b.id === cb.dataset.id))
+        .filter(b => b && b.status !== "Paid");
 
-            if (billsToConvert.length === 0) {
-                alert("⚠️ Selected bills are already Paid!");
-                return;
-            }
+    if (billsToConvert.length === 0) {
+        alert("⚠️ Selected bills are already Paid!");
+        return;
+    }
 
-            // GST calculation
-            let gstBill = {
-                gstBillNo: "GST-" + Date.now(),
-                date: new Date().toISOString().split("T")[0],
-                bills: billsToConvert,
-                subTotal: billsToConvert.reduce((sum, b) => sum + (parseFloat(b.total) || 0), 0),
-            };
+    // GST calculation
+    let gstBill = {
+        gstBillNo: "GST-" + Date.now(),
+        date: new Date().toISOString().split("T")[0],
+        bills: billsToConvert,
+        subTotal: billsToConvert.reduce((sum, b) => sum + (parseFloat(b.total) || 0), 0),
+    };
 
-            gstBill.gstAmount = gstBill.subTotal * 0.18;
-            gstBill.grandTotal = gstBill.subTotal + gstBill.gstAmount;
+    gstBill.gstAmount = gstBill.subTotal * 0.18;
+    gstBill.grandTotal = gstBill.subTotal + gstBill.gstAmount;
 
-            try {
-                await addDoc(collection(db, 'gstBills'), {
-                    ...gstBill,
-                    createdAt: serverTimestamp()
-                });
+    try {
+        await addDoc(collection(db, 'gstBills'), {
+            ...gstBill,
+            createdAt: serverTimestamp()
+        });
 
-                // Update bills status
-                for (let b of billsToConvert) {
-                    await setDoc(doc(db, 'bills', b.id), {
-                        status: "Paid"
-                    }, { merge: true });
-                }
+        // Update bills status
+        for (let b of billsToConvert) {
+            await setDoc(doc(db, 'bills', b.id), {
+                status: "Paid"
+            }, { merge: true });
+        }
 
-                alert("✅ GST Created Successfully!");
-            } catch (err) {
-                console.error(err);
-                alert("❌ GST creation failed");
-            }
-        };
+        alert("✅ GST Created Successfully!");
+    } catch (err) {
+        console.error(err);
+        alert("❌ GST creation failed");
+    }
+};
 
 
         /* updateGST and deleteGSTBill operate on gstBillsArr and update bills' statuses back to Unpaid when a GST bill is deleted */
@@ -1691,51 +1707,32 @@
         setInterval(updateDashDateTime, 1000);
         updateDashDateTime();
         window.applyBillFilters = function () {
-
-            let fromDate = document.getElementById("fromDate").value;
-            let toDate = document.getElementById("toDate").value;
+            let from = document.getElementById("billFromDate").value;
+            let to = document.getElementById("billToDate").value;
 
             let dept = document.getElementById("filterDepartment").value;
             let party = document.getElementById("filterParty").value;
             let product = document.getElementById("filterProduct").value;
             let status = document.getElementById("filterStatus").value;
 
-            let filtered = [...billsArr];
+            let filtered = billsArr.filter(b => {
 
-            // 🔹 From Date filter
-            if (fromDate !== "") {
-                filtered = filtered.filter(b => b.date >= fromDate);
-            }
+                // Date filter
+                if (from && b.date < from) return false;
+                if (to && b.date > to) return false;
 
-            // 🔹 To Date filter
-            if (toDate !== "") {
-                filtered = filtered.filter(b => b.date <= toDate);
-            }
+                if (dept && b.dept !== dept) return false;
+                if (party && b.party !== party) return false;
+                if (product && b.product !== product) return false;
+                if (status && b.status !== status) return false;
 
-            // 🔹 Department filter
-            if (dept !== "") {
-                filtered = filtered.filter(b => b.dept === dept);
-            }
+                return true;
+            });
 
-            // 🔹 Party filter
-            if (party !== "") {
-                filtered = filtered.filter(b => b.party === party);
-            }
-
-            // 🔹 Product filter
-            if (product !== "") {
-                filtered = filtered.filter(b => b.product === product);
-            }
-
-            // 🔹 Status filter
-            if (status !== "") {
-                filtered = filtered.filter(b => b.status === status);
-            }
-
-            // 🔹 Display result
             displayBills(filtered);
             updateBillTableTotal(filtered);   // 👈 total row update
         };
+
 
         window.refreshBillTable = function () {
 
