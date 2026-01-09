@@ -744,6 +744,15 @@
         let usersArr = [];
         let billsArr = [];
         let gstBillsArr = [];
+        let lastBillFilter = {
+            from: "",
+            to: "",
+            dept: "",
+            party: "",
+            product: "",
+            status: ""
+        };
+
 
         /* Utility: map a storageKey used in your original code to Firestore collection name */
         function collNameFromKey(key) {
@@ -818,7 +827,21 @@
                 billsArr = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 // keep the old global `bills` variable used across functions for compatibility
                 window.bills = billsArr.map(b => ({ ...b })); // shallow map to match previous structure
-                displayBills(window.bills);
+                if (
+                    lastBillFilter.from ||
+                    lastBillFilter.to ||
+                    lastBillFilter.dept ||
+                    lastBillFilter.party ||
+                    lastBillFilter.product ||
+                    lastBillFilter.status
+                ) {
+                    applyBillFilters();   // 🔥 filter retain રહેશે
+                } else {
+                    displayBills(window.bills);
+                    updateBillTableTotal(window.bills);
+                }
+
+
                 loadAdminBills();
                 refreshDashboard();
                 updateBillStatus();
@@ -1285,8 +1308,10 @@
                 const row = `<tr>
         <td>
   <input type="checkbox"
-         class="billCheck"
-         data-id="${bill.id}">
+       class="billCheck"
+       data-id="${bill.id}"
+       ${bill.status === "Paid" ? "disabled" : ""}>
+
 </td>
 
         <td>${bill.dept || ""}</td>
@@ -1515,53 +1540,68 @@
            These update bills and gstBills collections
            =========================== */
         window.convertToGST = async function () {
-    let selectedCheckboxes = [...document.querySelectorAll(".billCheck:checked")];
 
-    if (selectedCheckboxes.length === 0) {
-        alert("⚠️ Please select at least one bill!");
-        return;
-    }
+            const selectedCheckboxes = [...document.querySelectorAll(".billCheck:checked")];
 
-    // ✅ Bill ID થી exact bill fetch કરો
-    let billsToConvert = selectedCheckboxes
-        .map(cb => billsArr.find(b => b.id === cb.dataset.id))
-        .filter(b => b && b.status !== "Paid");
+            if (selectedCheckboxes.length === 0) {
+                alert("⚠️ Please select at least one bill!");
+                return;
+            }
 
-    if (billsToConvert.length === 0) {
-        alert("⚠️ Selected bills are already Paid!");
-        return;
-    }
+            // ✅ ONLY Unpaid bills can be converted
+            const billsToConvert = selectedCheckboxes
+                .map(cb => billsArr.find(b => b.id === cb.dataset.id))
+                .filter(b => b && b.status === "Unpaid");
 
-    // GST calculation
-    let gstBill = {
-        gstBillNo: "GST-" + Date.now(),
-        date: new Date().toISOString().split("T")[0],
-        bills: billsToConvert,
-        subTotal: billsToConvert.reduce((sum, b) => sum + (parseFloat(b.total) || 0), 0),
-    };
+            if (billsToConvert.length === 0) {
+                alert("⚠️ Selected bills are already Paid!");
+                return;
+            }
 
-    gstBill.gstAmount = gstBill.subTotal * 0.18;
-    gstBill.grandTotal = gstBill.subTotal + gstBill.gstAmount;
+            const subTotal = billsToConvert.reduce(
+                (sum, b) => sum + (parseFloat(b.total) || 0), 0
+            );
 
-    try {
-        await addDoc(collection(db, 'gstBills'), {
-            ...gstBill,
-            createdAt: serverTimestamp()
-        });
+            const gstBill = {
+                gstBillNo: "GST-" + Date.now(),
+                date: new Date().toISOString().split("T")[0],
 
-        // Update bills status
-        for (let b of billsToConvert) {
-            await setDoc(doc(db, 'bills', b.id), {
-                status: "Paid"
-            }, { merge: true });
-        }
+                bills: billsToConvert.map(b => ({
+                    id: b.id,
+                    billNo: b.billNo,
+                    total: b.total,
+                    party: b.party
+                })),
 
-        alert("✅ GST Created Successfully!");
-    } catch (err) {
-        console.error(err);
-        alert("❌ GST creation failed");
-    }
-};
+                subTotal,
+                gstRate: 18,
+                gstAmount: subTotal * 0.18,
+                grandTotal: subTotal * 1.18
+            };
+
+            try {
+                await addDoc(collection(db, "gstBills"), {
+                    ...gstBill,
+                    createdAt: serverTimestamp()
+                });
+
+                // ✅ Mark ONLY selected bills as Paid
+                for (const b of billsToConvert) {
+                    await setDoc(
+                        doc(db, "bills", b.id),
+                        { status: "Paid" },
+                        { merge: true }
+                    );
+                }
+
+                alert("✅ GST Created Successfully!");
+
+            } catch (err) {
+                console.error(err);
+                alert("❌ GST creation failed");
+            }
+        };
+
 
 
         /* updateGST and deleteGSTBill operate on gstBillsArr and update bills' statuses back to Unpaid when a GST bill is deleted */
@@ -1584,28 +1624,33 @@
         };
 
         window.deleteGSTBill = async function (index) {
+
             if (!confirm("⚠️ Are you sure you want to delete this GST Bill?")) return;
-            let gb = gstBillsArr[index];
-            if (!gb) return alert("GST Bill not found.");
+
+            const gb = gstBillsArr[index];
+            if (!gb || !gb.bills) return alert("GST Bill not found.");
 
             try {
-                // Revert status of original bills to "Unpaid"
-                for (let bill of gb.bills || []) {
-                    // find the bill document by billNo (assuming unique)
-                    let original = billsArr.find(b => b.billNo === bill.billNo);
-                    if (original && original.id) {
-                        await setDoc(doc(db, 'bills', original.id), { ...original, status: "Unpaid" }, { merge: true });
-                    }
+                // 🔁 Revert ONLY bills included in this GST
+                for (const bill of gb.bills) {
+                    await setDoc(
+                        doc(db, "bills", bill.id),
+                        { status: "Unpaid" },
+                        { merge: true }
+                    );
                 }
 
-                // delete GST doc
-                await deleteDoc(doc(db, 'gstBills', gb.id));
-                alert("✅ GST Bill deleted successfully! Original bills status reverted.");
+                // ❌ Delete GST bill document
+                await deleteDoc(doc(db, "gstBills", gb.id));
+
+                alert("✅ GST deleted & bills reverted to Unpaid");
+
             } catch (err) {
-                console.error("Error deleting GST bill:", err);
-                alert("❌ Error deleting GST bill.");
+                console.error(err);
+                alert("❌ Error deleting GST bill");
             }
         };
+
         window.filterDashboard = function () {
 
             if (!billsArr || billsArr.length === 0) {
@@ -1738,31 +1783,57 @@
         setInterval(updateDashDateTime, 1000);
         updateDashDateTime();
         window.applyBillFilters = function () {
-            let from = document.getElementById("billFromDate").value;
-            let to = document.getElementById("billToDate").value;
 
-            let dept = document.getElementById("filterDepartment").value;
-            let party = document.getElementById("filterParty").value;
-            let product = document.getElementById("filterProduct").value;
-            let status = document.getElementById("filterStatus").value;
+            lastBillFilter = {
+                from: document.getElementById("billFromDate").value,
+                to: document.getElementById("billToDate").value,
+                dept: document.getElementById("filterDepartment").value,
+                party: document.getElementById("filterParty").value,
+                product: document.getElementById("filterProduct").value,
+                status: document.getElementById("filterStatus").value
+            };
 
             let filtered = billsArr.filter(b => {
 
-                // Date filter
-                if (from && b.date < from) return false;
-                if (to && b.date > to) return false;
-
-                if (dept && b.dept !== dept) return false;
-                if (party && b.party !== party) return false;
-                if (product && b.product !== product) return false;
-                if (status && b.status !== status) return false;
+                if (lastBillFilter.from && b.date < lastBillFilter.from) return false;
+                if (lastBillFilter.to && b.date > lastBillFilter.to) return false;
+                if (lastBillFilter.dept && b.dept !== lastBillFilter.dept) return false;
+                if (lastBillFilter.party && b.party !== lastBillFilter.party) return false;
+                if (lastBillFilter.product && b.product !== lastBillFilter.product) return false;
+                if (lastBillFilter.status && b.status !== lastBillFilter.status) return false;
 
                 return true;
             });
 
             displayBills(filtered);
-            updateBillTableTotal(filtered);   // 👈 total row update
+            updateBillTableTotal(filtered);
         };
+
+
+        window.refreshBillsAfterEdit = function () {
+
+            if (
+                lastBillFilter.from ||
+                lastBillFilter.to ||
+                lastBillFilter.dept ||
+                lastBillFilter.party ||
+                lastBillFilter.product ||
+                lastBillFilter.status
+            ) {
+                applyBillFilters();   // 🔥 re-apply filter
+            } else {
+                displayBills(billsArr);
+                updateBillTableTotal(billsArr);
+            }
+        };
+
+        document.getElementById("selectAllBills").addEventListener("change", function () {
+            const checked = this.checked;
+
+            document.querySelectorAll(".billCheck").forEach(cb => {
+                cb.checked = checked;
+            });
+        });
 
 
         window.refreshBillTable = function () {
@@ -1949,6 +2020,8 @@
                 console.error(err);
                 alert("Error updating bill");
             }
+
+            refreshBillsAfterEdit();
         };
         function updateBillTableTotal(data) {
             let total = 0;
@@ -1957,6 +2030,27 @@
             });
             document.getElementById("billTotalRow").innerText = total.toFixed(2);
         }
+        window.refreshBillTable = function () {
+
+            lastBillFilter = {
+                from: "",
+                to: "",
+                dept: "",
+                party: "",
+                product: "",
+                status: ""
+            };
+
+            document.getElementById("billFromDate").value = "";
+            document.getElementById("billToDate").value = "";
+            document.getElementById("filterDepartment").value = "";
+            document.getElementById("filterParty").value = "";
+            document.getElementById("filterProduct").value = "";
+            document.getElementById("filterStatus").value = "";
+
+            displayBills(billsArr);
+            updateBillTableTotal(billsArr);
+        };
 
 
 
